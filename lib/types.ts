@@ -6,6 +6,7 @@ export type ToolResult = (ToolInvocation & {
 })[];
 
 export type CustomFiles = {
+  base64(base64: any): string | ArrayBuffer | Blob | ReadableStream<any>;
   name: string;
   contentType: string;
   content: string;

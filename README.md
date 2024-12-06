@@ -19,6 +19,7 @@ This is an AI-powered code and data analysis tool built with Next.js and the [E2
 **Supported LLM Providers:**
 - 🔸 TogetherAI
 - 🔸 Fireworks
+- 🔸 Groq
 
 **Supported chart types:**
 - 🔸 All the supported charts are descriebd [here](https://e2b.dev/docs/code-interpreting/create-charts-visualizations/interactive-charts#supported-intertactive-charts).
@@ -52,5 +53,6 @@ E2B: `E2B_API_KEY`
 LLM Providers:
 
 - Fireworks: `FIREWORKS_API_KEY`
+- Groq: `GROQ_AI_API_KEY`
 - Together AI: `TOGETHER_API_KEY`
 - Ollama: `OLLAMA_BASE_URL`
