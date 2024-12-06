@@ -32,7 +32,7 @@ export default function Home() {
   const [languageModel, setLanguageModel] = useLocalStorage<LLMModelConfig>(
     "languageModel",
     {
-      model: "accounts/fireworks/models/llama-v3p1-405b-instruct",
+      model: "llama-3.1-70b-versatile",
     }
   );
 
@@ -120,15 +120,8 @@ export default function Home() {
         <div className="flex items-center gap-2">
           <Logo className="w-6 h-6" />
           <h1 className="text-md font-medium">
-            Analyst by{" "}
-            <a
-              href="https://e2b.dev"
-              target="_blank"
-              className="underline decoration-[rgba(229,123,0,.3)] decoration-2 text-[#ff8800]"
-            >
-              E2B
-            </a>
-          </h1>
+            AI MultiAgents
+</h1>
         </div>
       </nav>
       <div className="flex-1 overflow-y-auto pt-14" id="messages">

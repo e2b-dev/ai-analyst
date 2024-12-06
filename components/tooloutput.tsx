@@ -13,6 +13,8 @@ export function ToolOutput({ result }: { result: ToolResult | undefined }) {
   const toolResult = result.find((r) => r.toolName === "runCode")?.result;
 
   if (toolResult?.error) {
+    console.log("Error occur",toolResult);
+    
     return (
       <div className="text-red-500 border border-red-200 rounded-xl bg-red-500/10 text-sm">
         <div className="flex items-center gap-2 pt-4 px-4">

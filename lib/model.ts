@@ -25,12 +25,20 @@ export function getModelClient(model: LLMModel, config: LLMModelConfig) {
   const { apiKey, baseURL } = config;
 
   const providerConfigs = {
-    togetherai: () =>
+    groqai: () =>
+      createOpenAI({
+        apiKey: apiKey || process.env.GROQ_AI_API_KEY,
+        baseURL:  "https://api.groq.com/openai/v1",
+      })(modelNameString),
+
+      togetherai: () =>
       createOpenAI({
         apiKey: apiKey || process.env.TOGETHER_API_KEY,
         baseURL: baseURL || "https://api.together.xyz/v1",
       })(modelNameString),
+    
     ollama: () => createOllama({ baseURL })(modelNameString),
+
     fireworks: () =>
       createOpenAI({
         apiKey: apiKey || process.env.FIREWORKS_API_KEY,

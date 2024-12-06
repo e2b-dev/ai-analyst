@@ -1,6 +1,36 @@
 {
   "models": [
     {
+      "id": "llama-3.1-70b-versatile",
+      "provider": "Groq",
+      "providerId": "groqai",
+      "name": "Llama 3.1 70b (Groq)"
+    },
+    {
+      "id": "llama-3.1-8b-instant",
+      "provider": "Groq",
+      "providerId": "groqai",
+      "name": "Llama 3.1 8b (Groq)"
+    },
+    {
+      "id": "llama-3.2-11b-vision-preview",
+      "provider": "Groq",
+      "providerId": "groqai",
+      "name": "Llama 3.2 11b (Groq)"
+    },
+    {
+      "id": "llama-3.2-3b-preview",
+      "provider": "Groq",
+      "providerId": "groqai",
+      "name": "Llama 3.2 3b (Groq)"
+    },
+    {
+      "id": "llama-3.2-1b-preview",
+      "provider": "Groq",
+      "providerId": "groqai",
+      "name": "Llama 3.2 1b (Groq)"
+    },
+    {
       "id": "accounts/fireworks/models/llama-v3p1-405b-instruct",
       "provider": "Fireworks",
       "providerId": "fireworks",
