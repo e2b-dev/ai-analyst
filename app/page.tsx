@@ -16,6 +16,7 @@ import { toUploadableFile } from "@/lib/utils";
 
 export default function Home() {
   const [files, setFiles] = useState<File[]>([]);
+  const [toolResults, setToolResults] = useState<any[]>([]);
 
   const exampleMessages = [
     "Person's age born in 2001 as line",
@@ -47,7 +48,6 @@ export default function Home() {
     setMessages,
     setInput,
   } = useChat({
-    // Fake tool call
     onFinish: async (message) => {
       const code = extractCodeFromText(message.content);
       if (code) {
@@ -61,7 +61,6 @@ export default function Home() {
 
         const result = await res.json();
 
-        // add tool call result to the last message
         message.toolInvocations = [
           {
             state: "result",
@@ -72,10 +71,10 @@ export default function Home() {
           },
         ];
 
-        console.log("Result:", result);
+        setToolResults((prev) => [...prev, result]);
+
         setFiles([]);
         setMessages((prev) => {
-          // replace last message with the new message
           return [...prev.slice(0, -1), message];
         });
       }
