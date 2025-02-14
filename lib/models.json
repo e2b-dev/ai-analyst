@@ -101,12 +101,6 @@
       "provider": "Together AI",
       "providerId": "togetherai",
       "name": "Llama 3.1 70B"
-    },
-    {
-      "id": "llama3.2",
-      "provider": "Ollama",
-      "providerId": "ollama",
-      "name": "Llama 3.2 3B"
     }
   ]
 }
