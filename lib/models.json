@@ -1,96 +1,46 @@
 {
   "models": [
-{
-      "id": "distil-whisper-large-v3-en",
-      "developer": "HuggingFace",
-      "contextWindowTokens": null,
-      "maxCompletionTokens": null,
-      "maxFileSize": "25 MB",
-      "modelCardLink": "Card",
-      "provider": "Groq",
-      "providerId": "groqai"
-    },
     {
       "id": "gemma2-9b-it",
-      "developer": "Google",
-      "contextWindowTokens": 8192,
-      "maxCompletionTokens": null,
-      "maxFileSize": null,
-      "modelCardLink": "Card",
       "provider": "Groq",
-      "providerId": "groqai"
+      "providerId": "groqai",
+      "name": "gemma2-9b-it"
     },
     {
       "id": "llama-3.3-70b-versatile",
-      "developer": "Meta",
-      "contextWindowTokens": "128K",
-      "maxCompletionTokens": "32,768",
-      "maxFileSize": null,
-      "modelCardLink": "Card",
       "provider": "Groq",
-      "providerId": "groqai"
+      "providerId": "groqai",
+      "name": "llama-3.3-70b-versatile"
     },
     {
       "id": "llama-3.1-8b-instant",
-      "developer": "Meta",
-      "contextWindowTokens": "128K",
-      "maxCompletionTokens": "8,192",
-      "maxFileSize": null,
-      "modelCardLink": "Card",
       "provider": "Groq",
-      "providerId": "groqai"
-    },
-    {
-      "id": "llama-guard-3-8b",
-      "developer": "Meta",
-      "contextWindowTokens": 8192,
-      "maxCompletionTokens": null,
-      "maxFileSize": null,
-      "modelCardLink": "Card",
-      "provider": "Groq",
-      "providerId": "groqai"
+      "providerId": "groqai",
+      "name": "llama-3.1-8b-instant"
     },
     {
       "id": "llama3-70b-8192",
-      "developer": "Meta",
-      "contextWindowTokens": 8192,
-      "maxCompletionTokens": null,
-      "maxFileSize": null,
-      "modelCardLink": "Card",
       "provider": "Groq",
-      "providerId": "groqai"
+      "providerId": "groqai",
+      "name": "llama3-70b-8192"
     },
     {
       "id": "llama3-8b-8192",
-      "developer": "Meta",
-      "contextWindowTokens": 8192,
-      "maxCompletionTokens": null,
-      "maxFileSize": null,
-      "modelCardLink": "Card",
       "provider": "Groq",
-      "providerId": "groqai"
+      "providerId": "groqai",
+      "name": "llama3-8b-8192"
     },
     {
       "id": "mixtral-8x7b-32768",
-      "developer": "Mistral",
-      "contextWindowTokens": 32768,
-      "maxCompletionTokens": null,
-      "maxFileSize": null,
-      "modelCardLink": null,
       "provider": "Groq",
-      "providerId": "groqai"
+      "providerId": "groqai",
+      "name": "mixtral-8x7b-32768"
     },
     {
       "id": "llama-3.2-3b-preview",
-      "developer": "Groq",
-      "providerId": "groqai",
-      "name": "Llama 3.2 3b (Groq)",
-      "contextWindowTokens": null,
-      "maxCompletionTokens": null,
-      "maxFileSize": null,
-      "modelCardLink": null,
       "provider": "Groq",
-      "providerId": "groqai"
+      "providerId": "groqai",
+      "name": "llama-3.2-3b-preview (Groq)"
     },
     {
       "id": "llama-3.1-70b-versatile",
