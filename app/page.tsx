@@ -51,15 +51,19 @@ export default function Home() {
     onFinish: async (message) => {
       const code = extractCodeFromText(message.content);
       if (code) {
-        const res = await fetch("/api/sandbox", {
+        const formData = new FormData();
+        formData.append("code", code);
+
+        for (const file of files) {
+          formData.append(`file_${file.name}`, file);
+        }
+
+        const response = await fetch("/api/sandbox", {
           method: "POST",
-          body: JSON.stringify({
-            code,
-            files: await Promise.all(files.map((f) => toUploadableFile(f))),
-          }),
+          body: formData,
         });
 
-        const result = await res.json();
+        const result = await response.json();
 
         // add tool call result to the last message
         message.toolInvocations = [

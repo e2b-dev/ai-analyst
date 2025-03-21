@@ -3,7 +3,12 @@
 import { getModelClient, LLMModel, LLMModelConfig } from "@/lib/model";
 import { toPrompt } from "@/lib/prompt";
 import { CustomFiles } from "@/lib/types";
-import { streamText, convertToCoreMessages, Message, LanguageModelV1 } from "ai";
+import {
+  streamText,
+  convertToCoreMessages,
+  Message,
+  LanguageModelV1,
+} from "ai";
 
 // Allow streaming responses up to 60 seconds
 export const maxDuration = 60;
@@ -27,11 +32,7 @@ export async function POST(req: Request) {
     return message;
   });
 
-  const {
-    model,
-    apiKey,
-    ...modelParams
-  } = data.config;
+  const { model, apiKey, ...modelParams } = data.config;
 
   const modelClient = getModelClient(data.model, data.config);
 
