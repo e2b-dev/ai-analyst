@@ -54,10 +54,8 @@ export default function Home() {
         const formData = new FormData();
         formData.append("code", code);
 
-        for (const file of await Promise.all(filesData)) {
-          const blob = new Blob([file.content], { type: "text/plain" });
-          const fileObj = new File([blob], file.name, { type: "text/plain" });
-          formData.append(`file_${file.name}`, fileObj);
+        for (const file of files) {
+          formData.append(`file_${file.name}`, file);
         }
 
         const response = await fetch("/api/sandbox", {
