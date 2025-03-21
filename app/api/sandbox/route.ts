@@ -6,9 +6,22 @@ const sandboxTimeout = 10 * 60 * 1000; // 10 minute in ms
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
-  const { code, files }: { code: string; files: CustomFiles[] } =
-    await req.json();
-  console.log("Executing code");
+  const formData = await req.formData();
+  const code = formData.get("code") as string;
+
+  const files: CustomFiles[] = [];
+  for (const [key, value] of formData.entries()) {
+    if (key === "code") continue;
+
+    if (value instanceof File) {
+      const content = await value.text();
+      files.push({
+        name: value.name,
+        content: content,
+        contentType: value.type,
+      });
+    }
+  }
 
   const sandbox = await Sandbox.create({
     apiKey: process.env.E2B_API_KEY,

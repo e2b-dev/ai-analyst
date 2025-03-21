@@ -3,20 +3,50 @@
 import { getModelClient, LLMModel, LLMModelConfig } from "@/lib/model";
 import { toPrompt } from "@/lib/prompt";
 import { CustomFiles } from "@/lib/types";
-import { streamText, convertToCoreMessages, Message, LanguageModelV1 } from "ai";
+import {
+  streamText,
+  convertToCoreMessages,
+  Message,
+  LanguageModelV1,
+} from "ai";
 
 // Allow streaming responses up to 60 seconds
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
-  const {
-    messages,
-    data,
-  }: {
-    messages: Message[];
-    data: { files: CustomFiles[]; model: LLMModel; config: LLMModelConfig };
-  } = await req.json();
-  // Filter out tool invocations
+  const contentType = req.headers.get("content-type") || "";
+
+  let messages: Message[];
+  let data: { files: CustomFiles[]; model: LLMModel; config: LLMModelConfig };
+
+  if (contentType.includes("multipart/form-data")) {
+    const formData = await req.formData();
+
+    messages = JSON.parse(formData.get("messages") as string);
+    const modelData = JSON.parse(formData.get("data") as string);
+
+    const files: CustomFiles[] = [];
+    for (const [key, value] of formData.entries()) {
+      if (key.startsWith("file_") && value instanceof File) {
+        const content = await value.text();
+        files.push({
+          name: value.name,
+          content: content,
+          contentType: value.type,
+        });
+      }
+    }
+
+    data = {
+      ...modelData,
+      files: files,
+    };
+  } else {
+    const jsonData = await req.json();
+    messages = jsonData.messages;
+    data = jsonData.data;
+  }
+
   const filteredMessages = messages.map((message) => {
     if (message.toolInvocations) {
       return {
@@ -27,12 +57,7 @@ export async function POST(req: Request) {
     return message;
   });
 
-  const {
-    model,
-    apiKey,
-    ...modelParams
-  } = data.config;
-
+  const { model, apiKey, ...modelParams } = data.config;
   const modelClient = getModelClient(data.model, data.config);
 
   const result = await streamText({
