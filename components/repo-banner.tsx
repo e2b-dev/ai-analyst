@@ -13,7 +13,7 @@ export function RepoBanner() {
       rel="noopener noreferrer"
       aria-label={`View Fragments repository on GitHub`}
       className={cn(
-        "bg-background overflow-hidden hover:scale-[1.01] font-light px-3 py-1.5 rounded-2xl",
+        "bg-background overflow-hidden font-light px-3 py-1.5 rounded-2xl",
         "gap-2 w-fit flex items-center shadow-sm ml-auto border",
         "transition-all duration-300 group relative",
         "before:absolute before:w-full before:h-full before:bg-[radial-gradient(circle_at_50%_-50%,rgba(255,255,255,0.1),transparent_70%)] dark:before:bg-[radial-gradient(circle_at_50%_-100%,rgba(255,255,255,0.1),transparent_70%)] before:rounded-2xl before:pointer-events-none"
@@ -25,7 +25,7 @@ export function RepoBanner() {
         className="h-6 bg-[hsl(var(--border))]"
         aria-hidden="true"
       />
-      <p className="text-xs md:text-sm font-light text-foreground tracking-wide">
+      <p className="text-sm font-medium text-foreground tracking-wide">
         Star on GitHub
       </p>
       <div
@@ -34,7 +34,7 @@ export function RepoBanner() {
         aria-live="polite"
       >
         <StarFilledIcon
-          className="w-4 h-4 transition-transform group-hover:rotate-[90deg] duration-200 ease-in-out"
+          className="w-4 h-4 transition-transform group-hover:text-[#e4b340] duration-200 ease-in-out"
           aria-label="GitHub stars"
         />
       </div>

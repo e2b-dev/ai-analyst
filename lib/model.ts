@@ -25,6 +25,7 @@ export function getModelClient(model: LLMModel, config: LLMModelConfig) {
   const { apiKey, baseURL } = config;
 
   const providerConfigs = {
+    openai: () => createOpenAI()(modelNameString),
     togetherai: () =>
       createOpenAI({
         apiKey: apiKey || process.env.TOGETHER_API_KEY,
