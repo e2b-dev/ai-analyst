@@ -27,7 +27,7 @@ export default function Home() {
   const [languageModel, setLanguageModel] = useLocalStorage<LLMModelConfig>(
     "languageModel",
     {
-      model: "accounts/fireworks/models/llama-v3p1-405b-instruct",
+      model: "accounts/fireworks/models/llama4-maverick-instruct-basic",
     }
   );
 
