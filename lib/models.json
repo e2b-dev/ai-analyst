@@ -43,18 +43,6 @@
       "name": "Llama 3.1 70B"
     },
     {
-      "id": "accounts/fireworks/agents/f1-preview",
-      "provider": "Fireworks",
-      "providerId": "fireworks",
-      "name": "F1 (Preview)"
-    },
-    {
-      "id": "accounts/fireworks/agents/f1-mini-preview",
-      "provider": "Fireworks",
-      "providerId": "fireworks",
-      "name": "F1 Mini (Preview)"
-    },
-    {
       "id": "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
       "provider": "Together AI",
       "providerId": "togetherai",
