@@ -13,6 +13,18 @@
       "name": "o3-mini"
     },
     {
+      "id": "accounts/fireworks/models/llama4-maverick-instruct-basic",
+      "provider": "Fireworks",
+      "providerId": "fireworks",
+      "name": "Llama 4 Maverick Instruct"
+    },
+    {
+      "id": "accounts/fireworks/models/llama4-scout-instruct-basic",
+      "provider": "Fireworks",
+      "providerId": "fireworks",
+      "name": "Llama 4 Scout Instruct"
+    },
+    {
       "id": "accounts/fireworks/models/llama-v3p1-405b-instruct",
       "provider": "Fireworks",
       "providerId": "fireworks",
@@ -29,18 +41,6 @@
       "provider": "Fireworks",
       "providerId": "fireworks",
       "name": "Llama 3.1 70B"
-    },
-    {
-      "id": "accounts/fireworks/agents/f1-preview",
-      "provider": "Fireworks",
-      "providerId": "fireworks",
-      "name": "F1 (Preview)"
-    },
-    {
-      "id": "accounts/fireworks/agents/f1-mini-preview",
-      "provider": "Fireworks",
-      "providerId": "fireworks",
-      "name": "F1 Mini (Preview)"
     },
     {
       "id": "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
