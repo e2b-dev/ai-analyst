@@ -1,6 +1,12 @@
 {
   "models": [
     {
+      "id": "gpt-4.1",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "name": "GPT-4.1"
+    },
+    {
       "id": "o1",
       "provider": "OpenAI",
       "providerId": "openai",
