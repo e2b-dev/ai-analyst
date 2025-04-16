@@ -1,6 +1,24 @@
 {
   "models": [
     {
+      "id": "o3",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "name": "o3"
+    },
+    {
+      "id": "o3-mini",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "name": "o3-mini"
+    },
+    {
+      "id": "o4-mini",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "name": "o4-mini"
+    },
+    {
       "id": "gpt-4.1",
       "provider": "OpenAI",
       "providerId": "openai",
@@ -11,12 +29,6 @@
       "provider": "OpenAI",
       "providerId": "openai",
       "name": "o1"
-    },
-    {
-      "id": "o3-mini",
-      "provider": "OpenAI",
-      "providerId": "openai",
-      "name": "o3-mini"
     },
     {
       "id": "accounts/fireworks/models/llama4-maverick-instruct-basic",
