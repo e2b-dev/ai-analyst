@@ -1,6 +1,30 @@
 {
   "models": [
     {
+      "id": "claude-opus-4-20250514",
+      "provider": "Anthropic",
+      "providerId": "anthropic",
+      "name": "Claude Opus 4"
+    },
+    {
+      "id": "claude-sonnet-4-20250514",
+      "provider": "Anthropic",
+      "providerId": "anthropic",
+      "name": "Claude Sonnet 4"
+    },
+    {
+      "id": "models/gemini-2.5-flash-preview-05-20",
+      "provider": "Google Generative AI",
+      "providerId": "google",
+      "name": "Gemini 2.5 Flash Preview 05-20"
+    },
+    {
+      "id": "models/gemini-2.5-pro-preview-05-06",
+      "provider": "Google Generative AI",
+      "providerId": "google",
+      "name": "Gemini 2.5 Pro Preview 05-06"
+    },
+    {
       "id": "o3",
       "provider": "OpenAI",
       "providerId": "openai",
@@ -53,24 +77,6 @@
       "provider": "Fireworks",
       "providerId": "fireworks",
       "name": "DeepSeek R1"
-    },
-    {
-      "id": "accounts/fireworks/models/llama-v3p1-70b-instruct",
-      "provider": "Fireworks",
-      "providerId": "fireworks",
-      "name": "Llama 3.1 70B"
-    },
-    {
-      "id": "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
-      "provider": "Together AI",
-      "providerId": "togetherai",
-      "name": "Llama 3.1 70B"
-    },
-    {
-      "id": "llama3.2",
-      "provider": "Ollama",
-      "providerId": "ollama",
-      "name": "Llama 3.2 3B"
     }
   ]
 }

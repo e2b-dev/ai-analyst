@@ -1,6 +1,7 @@
+import { createAnthropic } from '@ai-sdk/anthropic'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createOpenAI } from "@ai-sdk/openai";
 import { createFireworks } from "@ai-sdk/fireworks";
-import { createTogetherAI } from "@ai-sdk/togetherai";
 import { createOllama } from "ollama-ai-provider";
 
 export type LLMModel = {
@@ -27,12 +28,10 @@ export function getModelClient(model: LLMModel, config: LLMModelConfig) {
   const { apiKey, baseURL } = config;
 
   const providerConfigs = {
+    anthropic: () => createAnthropic({ apiKey, baseURL })(modelNameString),
+    google: () =>
+      createGoogleGenerativeAI({ apiKey, baseURL })(modelNameString),
     openai: () => createOpenAI()(modelNameString),
-    togetherai: () =>
-      createTogetherAI({
-        apiKey: apiKey || process.env.TOGETHER_API_KEY,
-        baseURL: baseURL || "https://api.together.xyz/v1",
-      })(modelNameString),
     ollama: () => createOllama({ baseURL })(modelNameString),
     fireworks: () =>
       createFireworks({
