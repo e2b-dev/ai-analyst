@@ -77,6 +77,18 @@
       "provider": "Fireworks",
       "providerId": "fireworks",
       "name": "DeepSeek R1"
+    },
+    {
+      "id": "accounts/fireworks/models/qwen3-30b-a3b",
+      "provider": "Fireworks",
+      "providerId": "fireworks",
+      "name": "Qwen3 30B-A3B"
+    },
+    {
+      "id": "accounts/fireworks/models/qwen3-235b-a22b",
+      "provider": "Fireworks",
+      "providerId": "fireworks",
+      "name": "Qwen3 235B-A22B"
     }
   ]
 }
