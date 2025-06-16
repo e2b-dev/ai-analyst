@@ -27,7 +27,7 @@
     "echarts": "^5.5.1",
     "echarts-for-react": "^3.0.2",
     "lucide-react": "^0.453.0",
-    "next": "14.2.26",
+    "next": "14.2.30",
     "ollama-ai-provider": "^0.16.0",
     "react": "^18",
     "react-dom": "^18",
