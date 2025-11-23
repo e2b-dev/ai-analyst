@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重大逃漏稅與洗錢防制專案 - 案件分析儀表板</title>
+    
+    <!-- Tailwind CSS (Utility-First Styling) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js (Data Visualization) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts (Noto Sans TC) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                    },
+                    colors: {
+                        'agency-dark': '#1e293b', // Slate 800
+                        'agency-blue': '#0f172a', // Slate 900
+                        'alert-red': '#dc2626', // Red 600
+                        'legal-paper': '#f8fafc', // Slate 50
+                        'evidence-yellow': '#fef08a', // Yellow 200
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Chart Container Styling for Responsiveness */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 250px; /* Compact height for high density */
+            max-height: 300px;
+        }
+        
+        /* Compact Card Style */
+        .compact-card {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 12px; /* Tight padding */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        /* Connector Lines for Structure Diagram (No SVG) */
+        .connector-v {
+            width: 2px;
+            background-color: #cbd5e1;
+            margin: 0 auto;
+        }
+        .connector-h {
+            height: 2px;
+            background-color: #cbd5e1;
+            margin: 0 auto;
+        }
+        
+        /* Scrollbar hiding for cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888; 
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555; 
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased leading-tight">
+
+    <!-- Top Bar / Confidentiality Notice -->
+    <header class="bg-alert-red text-white text-center py-1 text-sm font-bold uppercase tracking-wider">
+        ⚠ 密件 • 檢舉人身分請依法絕對保密 • 內部專案調查使用 ⚠
+    </header>
+
+    <!-- Main Dashboard Container -->
+    <main class="max-w-7xl mx-auto p-2 md:p-4 grid grid-cols-12 gap-2">
+
+        <!-- Header Section -->
+        <div class="col-span-12 bg-agency-blue text-white p-4 rounded-sm shadow-md flex flex-col md:flex-row justify-between items-center border-l-4 border-alert-red">
+            <div>
+                <h1 class="text-2xl font-black tracking-tight">具名逃漏稅與洗錢防制專案分析</h1>
+                <p class="text-slate-400 text-xs mt-1">案由：劉水源家族集團跨縣市結構性逃漏稅、保險詐欺及資產隱匿案</p>
+            </div>
+            <div class="text-right mt-2 md:mt-0">
+                <div class="text-2xl font-bold text-evidence-yellow">案件編號：114-TAX-0809</div>
+                <div class="text-xs text-slate-400">檢舉日期：114年11月23日</div>
+            </div>
+        </div>
+
+        <!-- SECTION 1: Key Indicators (The "Hook") - High Density Grid -->
+        <div class="col-span-12 grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div class="compact-card bg-white border-l-4 border-blue-600">
+                <h3 class="text-xs font-bold text-slate-500 uppercase">涉案實體</h3>
+                <div class="text-3xl font-black text-agency-blue mt-1">4<span class="text-sm font-normal text-slate-400"> 家</span></div>
+                <p class="text-xs text-slate-600 mt-1 leading-3">新財源、開閎、仟繐、辰樺</p>
+            </div>
+            <div class="compact-card bg-white border-l-4 border-blue-600">
+                <h3 class="text-xs font-bold text-slate-500 uppercase">關鍵嫌疑人</h3>
+                <div class="text-3xl font-black text-agency-blue mt-1">5<span class="text-sm font-normal text-slate-400"> 人</span></div>
+                <p class="text-xs text-slate-600 mt-1 leading-3">劉水源、林秀鑾、林美雲等</p>
+            </div>
+            <div class="compact-card bg-white border-l-4 border-alert-red">
+                <h3 class="text-xs font-bold text-slate-500 uppercase">估計月現金流</h3>
+                <div class="text-3xl font-black text-alert-red mt-1">600<span class="text-sm font-normal text-slate-400"> 萬+</span></div>
+                <p class="text-xs text-slate-600 mt-1 leading-3">多數為未開發票之現金</p>
+            </div>
+            <div class="compact-card bg-white border-l-4 border-alert-red">
+                <h3 class="text-xs font-bold text-slate-500 uppercase">詐保金額倍數</h3>
+                <div class="text-3xl font-black text-alert-red mt-1">9.0<span class="text-sm font-normal text-slate-400"> 倍</span></div>
+                <p class="text-xs text-slate-600 mt-1 leading-3">成本2萬 vs 報價18萬</p>
+            </div>
+        </div>
+
+        <!-- SECTION 2: The Crime Structure (Organization Chart) -->
+        <div class="col-span-12 md:col-span-8 compact-card">
+            <h2 class="text-lg font-bold text-agency-blue border-b border-slate-200 pb-1 mb-2 flex items-center">
+                <span class="bg-agency-blue text-white text-xs px-2 py-0.5 rounded mr-2">結構分析</span>
+                家族集團控制與人頭帳戶結構圖
+            </h2>
+            <div class="bg-slate-50 p-2 rounded border border-slate-200 text-center text-xs">
+                
+                <!-- Level 1: Masterminds -->
+                <div class="flex justify-center gap-4 mb-2">
+                    <div class="bg-agency-blue text-white p-2 rounded shadow w-48 border-2 border-alert-red relative">
+                        <div class="font-bold text-sm">劉水源 (首腦)</div>
+                        <div class="text-xs text-slate-300">實際控制 / 決策</div>
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <span class="text-xl font-bold text-slate-400">↔</span> <!-- Marriage Relation -->
+                    </div>
+                    <div class="bg-agency-blue text-white p-2 rounded shadow w-48 border-2 border-alert-red relative">
+                        <div class="font-bold text-sm">林秀鑾 (董娘)</div>
+                        <div class="text-xs text-slate-300">資產核心 / 資金池</div>
+                    </div>
+                </div>
+
+                <!-- Connectors -->
+                <div class="connector-v h-4"></div>
+                <div class="w-3/4 connector-h"></div>
+                <div class="flex justify-between w-3/4 mx-auto">
+                    <div class="connector-v h-4"></div>
+                    <div class="connector-v h-4"></div>
+                    <div class="connector-v h-4"></div>
+                </div>
+
+                <!-- Level 2: Shells & Operations -->
+                <div class="flex justify-center gap-2 mt-0">
+                    <!-- Node 1 -->
+                    <div class="bg-white p-2 rounded shadow border-l-4 border-blue-500 w-1/3">
+                        <div class="font-bold text-blue-900">開閎企業社</div>
+                        <div class="text-gray-500 scale-90">負責人: 劉明宏(子)</div>
+                        <div class="bg-red-100 text-red-800 px-1 rounded mt-1 scale-90 font-bold">發票調節工具</div>
+                    </div>
+                    <!-- Node 2 -->
+                    <div class="bg-white p-2 rounded shadow border-l-4 border-blue-500 w-1/3">
+                        <div class="font-bold text-blue-900">新財源輪胎行</div>
+                        <div class="text-gray-500 scale-90">負責人: 劉水源</div>
+                        <div class="bg-red-100 text-red-800 px-1 rounded mt-1 scale-90 font-bold">主要營收窗口</div>
+                    </div>
+                    <!-- Node 3 -->
+                    <div class="bg-white p-2 rounded shadow border-l-4 border-blue-500 w-1/3">
+                        <div class="font-bold text-blue-900">仟繐/辰樺</div>
+                        <div class="text-gray-500 scale-90">負責人: 林美雲(姨子)</div>
+                        <div class="bg-red-100 text-red-800 px-1 rounded mt-1 scale-90 font-bold">地下工廠載體</div>
+                    </div>
+                </div>
+
+                <!-- Level 3: Underground Ops -->
+                <div class="mt-2 pt-2 border-t border-dashed border-slate-300">
+                    <div class="inline-block bg-slate-800 text-white px-3 py-1 rounded text-xs">
+                        ▼ 資金流向：前兒媳(會計)管控內帳 ➔ 麻布袋現金 ➔ 購置豪宅(洗錢)
+                    </div>
+                </div>
+            </div>
+            <p class="text-xs text-slate-500 mt-2">
+                <strong>結構說明：</strong> 集團利用親屬關係（妻、子、姨子）建立防火牆，透過四家公司交互開立發票墊高成本，並將實際營運隱匿於高雄地下工廠。
+            </p>
+        </div>
+
+        <!-- SECTION 3: Fraud Data Visualization (Insurance & Tax) -->
+        <div class="col-span-12 md:col-span-4 grid grid-cols-1 gap-2">
+            
+            <!-- Chart: Insurance Fraud -->
+            <div class="compact-card">
+                <h2 class="text-sm font-bold text-agency-blue border-b border-slate-200 pb-1 mb-1">
+                    <span class="text-alert-red">●</span> 保險詐欺與利潤分析
+                </h2>
+                <div class="chart-container h-40">
+                    <canvas id="fraudChart"></canvas>
+                </div>
+                <p class="text-xs text-slate-500 mt-1 text-center">
+                    案件 AWG-0809：報價單浮報幅度高達 800%
+                </p>
+            </div>
+
+            <!-- Chart: Tax Evasion Flow -->
+            <div class="compact-card">
+                <h2 class="text-sm font-bold text-agency-blue border-b border-slate-200 pb-1 mb-1">
+                    <span class="text-alert-red">●</span> 營收申報 vs 實際金流
+                </h2>
+                <div class="chart-container h-40">
+                    <canvas id="incomeChart"></canvas>
+                </div>
+                <p class="text-xs text-slate-500 mt-1 text-center">
+                    推估僅申報 20% 營收，80% 透過現金隱匿
+                </p>
+            </div>
+        </div>
+
+        <!-- SECTION 4: Geographic & Asset Intelligence (The "Where") -->
+        <div class="col-span-12 md:col-span-6 compact-card">
+            <h2 class="text-lg font-bold text-agency-blue border-b border-slate-200 pb-1 mb-2 flex items-center">
+                <span class="bg-agency-blue text-white text-xs px-2 py-0.5 rounded mr-2">據點分析</span>
+                跨縣市「狡兔雙窟」營運模式
+            </h2>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+                <!-- Location A -->
+                <div class="bg-slate-50 p-2 border border-slate-200 rounded relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-blue-600 text-white text-[10px] px-1">登記地</div>
+                    <div class="font-bold text-sm text-slate-800">臺南市南區</div>
+                    <div class="text-slate-500 mb-1">中華南路二段 219-223 號</div>
+                    <ul class="list-disc list-inside text-slate-600 space-y-1 mt-2">
+                        <li>四家公司稅籍登記處</li>
+                        <li>店面狹小，無法容納巨量庫存</li>
+                        <li>功能：<span class="font-bold text-blue-700">接單、開立少量發票</span></li>
+                    </ul>
+                </div>
+                <!-- Location B -->
+                <div class="bg-red-50 p-2 border border-red-200 rounded relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-alert-red text-white text-[10px] px-1">地下工廠</div>
+                    <div class="font-bold text-sm text-red-900">高雄市路竹區</div>
+                    <div class="text-red-700 mb-1">環球路 83 號</div>
+                    <ul class="list-disc list-inside text-slate-600 space-y-1 mt-2">
+                        <li>掛「仟繐興業」招牌但未登記分公司</li>
+                        <li>大型倉儲與物流中心</li>
+                        <li>功能：<span class="font-bold text-red-700">隱匿庫存、黑市交易、改車</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 5: Evidence Log (Compact List) -->
+        <div class="col-span-12 md:col-span-6 compact-card">
+            <h2 class="text-lg font-bold text-agency-blue border-b border-slate-200 pb-1 mb-2 flex items-center">
+                <span class="bg-agency-blue text-white text-xs px-2 py-0.5 rounded mr-2">關鍵事證</span>
+                檢舉人掌握之直接證據 (USB內容)
+            </h2>
+            <div class="overflow-y-auto max-h-40">
+                <table class="w-full text-xs text-left">
+                    <thead class="bg-slate-100 text-slate-600 font-bold sticky top-0">
+                        <tr>
+                            <th class="p-2">證據類型</th>
+                            <th class="p-2">關鍵內容摘要</th>
+                            <th class="p-2 text-center">證明事項</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr>
+                            <td class="p-2 font-bold text-blue-800">錄音檔 A</td>
+                            <td class="p-2">員工：「南部八成都沒開發票...有固定補償最多不讓人查」</td>
+                            <td class="p-2 text-center"><span class="bg-red-100 text-red-800 px-1 rounded">逃漏稅意圖</span></td>
+                        </tr>
+                        <tr>
+                            <td class="p-2 font-bold text-blue-800">錄音檔 B</td>
+                            <td class="p-2">員工：「一個員工不用3-5萬，卻報到6萬」</td>
+                            <td class="p-2 text-center"><span class="bg-red-100 text-red-800 px-1 rounded">虛報薪資</span></td>
+                        </tr>
+                        <tr>
+                            <td class="p-2 font-bold text-blue-800">目擊證詞</td>
+                            <td class="p-2">負責人持有 3-4 麻布袋之鉅額現金</td>
+                            <td class="p-2 text-center"><span class="bg-red-100 text-red-800 px-1 rounded">隱匿金流</span></td>
+                        </tr>
+                        <tr>
+                            <td class="p-2 font-bold text-blue-800">照片證據</td>
+                            <td class="p-2">AWG-0809 大燈遭人為拆解破壞痕跡</td>
+                            <td class="p-2 text-center"><span class="bg-red-100 text-red-800 px-1 rounded">保險詐欺</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION 6: Asset Discrepancy (The "Wash") -->
+        <div class="col-span-12 compact-card bg-slate-50">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="w-full md:w-1/3">
+                    <h2 class="text-lg font-bold text-agency-blue mb-2">資產淨值矛盾分析</h2>
+                    <p class="text-xs text-slate-600 mb-2 text-justify">
+                        該家族近年於臺南市南區及高雄市湖內區（特定農業區）購置多筆高價豪宅與店面，且多為無貸款狀態。對比其申報之營利事業所得稅與綜合所得稅，存在巨大且無法解釋之資金缺口。
+                    </p>
+                    <div class="bg-white p-2 border border-slate-200 rounded">
+                        <div class="text-xs font-bold text-slate-500">推估隱匿資產總值</div>
+                        <div class="text-2xl font-black text-agency-blue">NT$ 數億元</div>
+                    </div>
+                </div>
+                <div class="w-full md:w-2/3 h-48 chart-container">
+                    <canvas id="assetChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="col-span-12 text-center text-[10px] text-slate-400 py-2 mt-2">
+            本文件由 Supreme Legal AI 系統生成 • 僅供相關執法機關辦案參考 • 含有機密個人資料請勿外流
+        </footer>
+
+    </main>
+
+    <!-- JAVASCRIPT: Data Visualization Logic -->
+    <script>
+        // Utility: Label Wrapping for Chart.js
+        function wrapLabels(labels) {
+            return labels.map(label => {
+                if (label.length > 10) {
+                    return label.split(/(?={)/); // Simple split example
+                }
+                return label;
+            });
+        }
+
+        // Common Tooltip Config
+        const commonTooltip = {
+            callbacks: {
+                title: function(tooltipItems) {
+                    const item = tooltipItems[0];
+                    let label = item.chart.data.labels[item.dataIndex];
+                    if (Array.isArray(label)) {
+                        return label.join(' ');
+                    } else {
+                        return label;
+                    }
+                }
+            }
+        };
+
+        // 1. Fraud Chart (Bar: Real Cost vs Claim)
+        const ctxFraud = document.getElementById('fraudChart').getContext('2d');
+        new Chart(ctxFraud, {
+            type: 'bar',
+            data: {
+                labels: ['實際維修成本', '向保險公司報價'],
+                datasets: [{
+                    label: '金額 (TWD)',
+                    data: [20000, 180000],
+                    backgroundColor: ['#94a3b8', '#dc2626'], // Slate 400, Red 600
+                    borderRadius: 4,
+                    barThickness: 40
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Horizontal bar
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: commonTooltip
+                },
+                scales: {
+                    x: { 
+                        grid: { display: false },
+                        ticks: { callback: function(value) { return '$' + value/1000 + 'k'; } }
+                    },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+
+        // 2. Income Flow Chart (Donut)
+        const ctxIncome = document.getElementById('incomeChart').getContext('2d');
+        new Chart(ctxIncome, {
+            type: 'doughnut',
+            data: {
+                labels: ['已申報發票營收', '隱匿現金營收 (黑數)'],
+                datasets: [{
+                    data: [20, 80], // 20% Reported, 80% Hidden based on audio evidence
+                    backgroundColor: ['#cbd5e1', '#1e293b'], // Slate 300, Slate 800
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } },
+                    tooltip: commonTooltip
+                }
+            }
+        });
+
+        // 3. Asset Discrepancy Chart (Line/Area)
+        const ctxAsset = document.getElementById('assetChart').getContext('2d');
+        new Chart(ctxAsset, {
+            type: 'line',
+            data: {
+                labels: ['2018', '2019', '2020', '2021', '2022', '2023', '2024'],
+                datasets: [
+                    {
+                        label: '申報所得 (推估)',
+                        data: [50, 55, 60, 58, 62, 65, 70], // Low flat line
+                        borderColor: '#94a3b8',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: false
+                    },
+                    {
+                        label: '資產淨值成長 (豪宅/店面)',
+                        data: [50, 80, 150, 300, 500, 750, 900], // Exponential growth
+                        borderColor: '#dc2626',
+                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', align: 'end', labels: { boxWidth: 10, font: { size: 10 } } },
+                    tooltip: commonTooltip,
+                    title: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f1f5f9' },
+                        ticks: { display: false } // Abstract values
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+    <!-- No SVG or Mermaid used. Pure HTML/CSS/Canvas. -->
+</body>
+</html>
