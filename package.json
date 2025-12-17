@@ -53,6 +53,11 @@
   "overrides": {
     "react-syntax-highlighter": {
       "prismjs": "1.30.0"
+    },
+    "eslint-config-next": {
+      "@next/eslint-plugin-next": {
+        "glob": "10.5.0"
+      }
     }
   }
 }
