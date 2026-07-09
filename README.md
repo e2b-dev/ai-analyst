@@ -1,5 +1,5 @@
 # AI Analyst by E2B
-This is an AI-powered code and data analysis tool built with Next.js and the [E2B SDK](https://e2b.dev/docs).
+This is an AI-powered code and data analysis tool built with Next.js and the [E2B SDK](https://e2b.dev/docs?utm_source=github&utm_medium=referral&utm_campaign=readme&utm_content=ai-analyst).
 
 ![Preview](preview.png)
 
@@ -21,7 +21,7 @@ This is an AI-powered code and data analysis tool built with Next.js and the [E2
 - 🔸 Fireworks
 
 **Supported chart types:**
-- 🔸 All the supported charts are descriebd [here](https://e2b.dev/docs/code-interpreting/create-charts-visualizations/interactive-charts#supported-intertactive-charts).
+- 🔸 All the supported charts are descriebd [here](https://e2b.dev/docs/code-interpreting/create-charts-visualizations/interactive-charts?utm_source=github&utm_medium=referral&utm_campaign=readme&utm_content=ai-analyst#supported-intertactive-charts).
 
 **Make sure to give us a star!**
 
@@ -47,7 +47,7 @@ Copy `.example.env` to `.env.local` and fill in variables for E2B and one LLM pr
 
 E2B: `E2B_API_KEY`
 
-- Get your [E2B API key here](https://e2b.dev/dashboard?tab=keys).
+- Get your [E2B API key here](https://e2b.dev/dashboard?tab=keys&utm_source=github&utm_medium=referral&utm_campaign=readme&utm_content=ai-analyst).
 
 LLM Providers:
 
