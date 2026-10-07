@@ -180,24 +180,22 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen max-h-screen">
-      <nav className="flex gap-0.5 justify-between items-center px-4 py-3 top-0 fixed left-0 right-0 bg-white/80 backdrop-blur-sm shadow-sm z-10">
+      <nav className="flex gap-0.5 justify-between items-center px-4 py-3 top-0 fixed left-0 right-0 bg-background border-b z-10">
         <div className="flex items-center gap-2 w-full max-w-2xl mx-auto">
-          <Logo className="w-6 h-6" />
-          <h1 className="text-md font-medium">
-            Analyst by{" "}
-            <a
-              href="https://e2b.dev"
-              target="_blank"
-              className="underline decoration-[rgba(229,123,0,.3)] decoration-2 text-[#ff8800]"
-            >
-              E2B
-            </a>
-          </h1>
+          <a
+            href="https://e2b.dev"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="E2B"
+          >
+            <Logo className="h-5 w-auto" />
+          </a>
+          <h1 className="text-sm font-medium border-l pl-2">AI Analyst</h1>
           <RepoBanner />
         </div>
       </nav>
 
-      <div className="flex-1 overflow-y-auto pt-14" id="messages">
+      <div className="flex-1 overflow-y-auto pt-16" id="messages">
         {messages.map((m) => (
           <MessageComponent key={m.id} message={m} result={results[m.id]} />
         ))}
@@ -211,7 +209,7 @@ export default function Home() {
                 {exampleMessages.map((msg) => (
                   <button
                     key={msg}
-                    className="flex items-center gap-2 p-1.5 border rounded-lg text-gray-800"
+                    className="flex items-center gap-2 p-1.5 border rounded-none text-foreground"
                     disabled={isLoading}
                     onClick={() => setInput(msg)}
                   >
@@ -223,7 +221,7 @@ export default function Home() {
             {files.map((file) => (
               <div
                 key={file.name}
-                className="flex items-center gap-2 p-1.5 border rounded-lg bg-slate-100 text-gray-800"
+                className="flex items-center gap-2 p-1.5 border rounded-none bg-secondary text-foreground"
               >
                 <FileText className="w-4 h-4" />
                 <span className="text-sm truncate">{file.name}</span>
@@ -258,7 +256,7 @@ export default function Home() {
               />
             </div>
             {isLoading && (
-              <span role="status" className="text-xs text-gray-700">
+              <span role="status" className="text-xs text-muted-foreground">
                 {isExecuting ? "Running Python…" : "Generating…"}
               </span>
             )}
@@ -269,7 +267,7 @@ export default function Home() {
             )}
           </div>
           {(error || executionError) && (
-            <div role="alert" className="text-sm text-red-600">
+            <div role="alert" className="text-sm text-destructive">
               {executionError || error?.message}
               <button
                 type="button"
@@ -283,7 +281,7 @@ export default function Home() {
           )}
           <form
             onSubmit={customSubmit}
-            className="flex border p-2 border-1.5 border-border rounded-xl overflow-hidden shadow-sm"
+            className="flex border p-2 border-1.5 border-border rounded-none overflow-hidden shadow-sm"
           >
             <input
               type="file"
@@ -299,7 +297,7 @@ export default function Home() {
               type="button"
               aria-label="Attach files"
               disabled={isLoading}
-              className="border p-1.5 rounded-lg hover:bg-slate-200 text-slate-800"
+              className="border p-1.5 rounded-none hover:bg-accent text-foreground"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById("multimodal")?.click();
@@ -310,7 +308,7 @@ export default function Home() {
             <input
               autoFocus
               required
-              className="w-full px-2 outline-none"
+              className="w-full px-2 bg-transparent outline-none focus-visible:ring-2 focus-visible:ring-ring"
               value={input}
               placeholder="Enter your prompt..."
               aria-label="Analysis prompt"
@@ -321,7 +319,7 @@ export default function Home() {
               type="submit"
               aria-label="Run analysis"
               disabled={isLoading || !input.trim()}
-              className="bg-orange-500 text-white p-1.5 rounded-lg hover:bg-orange-500/80"
+              className="bg-primary text-primary-foreground p-1.5 rounded-none hover:bg-primary/80"
             >
               <PlayIcon className="w-5 h-5" />
             </button>

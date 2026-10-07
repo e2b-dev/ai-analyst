@@ -35,7 +35,7 @@ export function LLMPicker({
           <SelectTrigger className="whitespace-nowrap border-none shadow-none focus:ring-0 px-0 py-0 h-6 text-xs">
             <SelectValue placeholder="Language model" />
           </SelectTrigger>
-          <SelectContent className="bg-white">
+          <SelectContent className="bg-popover">
             {Object.entries(
               Object.groupBy(models, ({ provider }) => provider)
             ).map(([provider, models]) => (

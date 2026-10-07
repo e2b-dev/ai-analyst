@@ -1,5 +1,27 @@
 import { ChartTypes, Result } from "@e2b/code-interpreter";
+import { useEffect, useRef } from "react";
+import { useMediaQuery } from "usehooks-ts";
 import ReactECharts, { EChartsOption } from "echarts-for-react";
+
+function ResponsiveChart({
+  option,
+  dark,
+}: {
+  option: EChartsOption;
+  dark: boolean;
+}) {
+  const ref = useRef<ReactECharts>(null);
+  useEffect(() => {
+    const chart = ref.current?.getEchartsInstance();
+    if (!chart) return;
+    const observer = new ResizeObserver(() => chart.resize());
+    observer.observe(chart.getDom());
+    return () => observer.disconnect();
+  }, [dark]);
+  return (
+    <ReactECharts ref={ref} option={option} theme={dark ? "dark" : undefined} />
+  );
+}
 
 export function RenderResult({
   result,
@@ -24,7 +46,20 @@ export function RenderResult({
 }
 
 export function Chart({ chart }: { chart: ChartTypes }) {
+  const dark = useMediaQuery("(prefers-color-scheme: dark)");
   const sharedOptions: EChartsOption = {
+    darkMode: dark,
+    backgroundColor: "transparent",
+    color: dark
+      ? ["#FF8800", "#00D992", "#59A8E1", "#FFFF00", "#F54545"]
+      : ["#e56f00", "#00a670", "#3C98C7", "#D1A102", "#FF4400"],
+    textStyle: {
+      color: dark ? "#FFFFFF" : "#0a0a0a",
+      fontFamily:
+        typeof document === "undefined"
+          ? "sans-serif"
+          : getComputedStyle(document.body).fontFamily,
+    },
     // title: {
     //   text: chart.title,
     //   left: "center",
@@ -65,7 +100,7 @@ export function Chart({ chart }: { chart: ChartTypes }) {
       },
     };
 
-    return <ReactECharts option={options} />;
+    return <ResponsiveChart option={options} dark={dark} />;
   }
 
   if (chart.type === "scatter") {
@@ -93,7 +128,7 @@ export function Chart({ chart }: { chart: ChartTypes }) {
       },
     };
 
-    return <ReactECharts option={options} />;
+    return <ResponsiveChart option={options} dark={dark} />;
   }
 
   if (chart.type === "bar") {
@@ -123,7 +158,7 @@ export function Chart({ chart }: { chart: ChartTypes }) {
       },
     };
 
-    return <ReactECharts option={options} />;
+    return <ResponsiveChart option={options} dark={dark} />;
   }
 
   if (chart.type === "pie") {
@@ -143,7 +178,7 @@ export function Chart({ chart }: { chart: ChartTypes }) {
       ],
     };
 
-    return <ReactECharts option={options} />;
+    return <ResponsiveChart option={options} dark={dark} />;
   }
 
   if (chart.type === "box_and_whisker") {
@@ -174,7 +209,7 @@ export function Chart({ chart }: { chart: ChartTypes }) {
       },
     };
 
-    return <ReactECharts option={options} />;
+    return <ResponsiveChart option={options} dark={dark} />;
   }
 
   if (chart.type === "superchart") {

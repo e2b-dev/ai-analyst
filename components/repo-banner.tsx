@@ -11,21 +11,21 @@ export function RepoBanner() {
       href={REPO_URL}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`View Fragments repository on GitHub`}
+      aria-label={`View AI Analyst repository on GitHub`}
       className={cn(
-        "bg-background overflow-hidden font-light px-3 py-1.5 rounded-2xl",
+        "bg-background overflow-hidden font-light px-3 py-1.5 rounded-none",
         "gap-2 w-fit flex items-center shadow-sm ml-auto border",
         "transition-all duration-300 group relative",
-        "before:absolute before:w-full before:h-full before:bg-[radial-gradient(circle_at_50%_-50%,rgba(255,255,255,0.1),transparent_70%)] dark:before:bg-[radial-gradient(circle_at_50%_-100%,rgba(255,255,255,0.1),transparent_70%)] before:rounded-2xl before:pointer-events-none"
+        "hover:bg-accent"
       )}
     >
       <GitHubIcon className="w-4 h-4" aria-hidden="true" />
       <Separator
         orientation="vertical"
-        className="h-6 bg-[hsl(var(--border))]"
+        className="h-6 bg-border"
         aria-hidden="true"
       />
-      <p className="text-sm font-medium text-foreground tracking-wide">
+      <p className="hidden sm:block text-sm font-medium text-foreground tracking-wide">
         Star on GitHub
       </p>
       <div
