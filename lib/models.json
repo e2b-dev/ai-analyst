@@ -1,94 +1,58 @@
 {
   "models": [
     {
-      "id": "claude-opus-4-20250514",
+      "id": "accounts/fireworks/models/deepseek-v4p1-flash",
+      "provider": "Fireworks",
+      "providerId": "fireworks",
+      "name": "DeepSeek V4.1 Flash"
+    },
+    {
+      "id": "accounts/fireworks/models/glm-5p3-flash",
+      "provider": "Fireworks",
+      "providerId": "fireworks",
+      "name": "GLM 5.3 Flash"
+    },
+    {
+      "id": "claude-sonnet-5-5",
       "provider": "Anthropic",
       "providerId": "anthropic",
-      "name": "Claude Opus 4"
+      "name": "Claude Sonnet 5.5"
     },
     {
-      "id": "claude-sonnet-4-20250514",
+      "id": "claude-opus-5-5",
       "provider": "Anthropic",
       "providerId": "anthropic",
-      "name": "Claude Sonnet 4"
+      "name": "Claude Opus 5.5"
     },
     {
-      "id": "models/gemini-2.5-flash-preview-05-20",
+      "id": "gemini-3.8-flash",
       "provider": "Google Generative AI",
       "providerId": "google",
-      "name": "Gemini 2.5 Flash Preview 05-20"
+      "name": "Gemini 3.8 Flash"
     },
     {
-      "id": "models/gemini-2.5-pro-preview-05-06",
+      "id": "gemini-3.5-flash-lite",
       "provider": "Google Generative AI",
       "providerId": "google",
-      "name": "Gemini 2.5 Pro Preview 05-06"
+      "name": "Gemini 3.5 Flash-Lite"
     },
     {
-      "id": "o3",
+      "id": "gpt-6-astra",
       "provider": "OpenAI",
       "providerId": "openai",
-      "name": "o3"
+      "name": "GPT-6 Astra"
     },
     {
-      "id": "o3-mini",
+      "id": "gpt-6.1-sol",
       "provider": "OpenAI",
       "providerId": "openai",
-      "name": "o3-mini"
+      "name": "GPT-6.1 Sol"
     },
     {
-      "id": "o4-mini",
+      "id": "gpt-6-luna",
       "provider": "OpenAI",
       "providerId": "openai",
-      "name": "o4-mini"
-    },
-    {
-      "id": "gpt-4.1",
-      "provider": "OpenAI",
-      "providerId": "openai",
-      "name": "GPT-4.1"
-    },
-    {
-      "id": "o1",
-      "provider": "OpenAI",
-      "providerId": "openai",
-      "name": "o1"
-    },
-    {
-      "id": "accounts/fireworks/models/llama4-maverick-instruct-basic",
-      "provider": "Fireworks",
-      "providerId": "fireworks",
-      "name": "Llama 4 Maverick Instruct"
-    },
-    {
-      "id": "accounts/fireworks/models/llama4-scout-instruct-basic",
-      "provider": "Fireworks",
-      "providerId": "fireworks",
-      "name": "Llama 4 Scout Instruct"
-    },
-    {
-      "id": "accounts/fireworks/models/llama-v3p1-405b-instruct",
-      "provider": "Fireworks",
-      "providerId": "fireworks",
-      "name": "Llama 3.1 405B"
-    },
-    {
-      "id": "accounts/fireworks/models/deepseek-r1",
-      "provider": "Fireworks",
-      "providerId": "fireworks",
-      "name": "DeepSeek R1"
-    },
-    {
-      "id": "accounts/fireworks/models/qwen3-30b-a3b",
-      "provider": "Fireworks",
-      "providerId": "fireworks",
-      "name": "Qwen3 30B-A3B"
-    },
-    {
-      "id": "accounts/fireworks/models/qwen3-235b-a22b",
-      "provider": "Fireworks",
-      "providerId": "fireworks",
-      "name": "Qwen3 235B-A22B"
+      "name": "GPT-6 Luna"
     }
   ]
 }

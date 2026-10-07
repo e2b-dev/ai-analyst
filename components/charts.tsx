@@ -5,16 +5,15 @@ export function RenderResult({
   result,
   viewMode,
 }: {
-  result: Result;
+  result: Pick<Result, "png" | "chart" | "extra">;
   viewMode: "static" | "interactive";
 }) {
-  if (viewMode === "static" && result.png) {
+  const chart = result.chart ?? result.extra?.chart;
+  if (viewMode === "interactive" && chart) {
+    return <Chart chart={chart} />;
+  }
+  if (result.png)
     return <img src={`data:image/png;base64,${result.png}`} alt="plot" />;
-  }
-
-  if (viewMode === "interactive" && result.extra?.chart) {
-    return <Chart chart={result.extra.chart} />;
-  }
 
   // Plotly charts are not supported yet
   // if (result.html) {

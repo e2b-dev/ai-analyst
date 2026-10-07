@@ -1,78 +1,102 @@
-// import { z } from "zod";
-// import { Sandbox } from "@e2b/code-interpreter";
-import { getModelClient, LLMModel, LLMModelConfig } from "@/lib/model";
-import { toPrompt } from "@/lib/prompt";
-import { CustomFiles } from "@/lib/types";
 import {
+  getModelClient,
+  getModelSettings,
+  modelConfigSchema,
+  providerKeyNames,
+} from "@/lib/model";
+import { providerErrorMessage } from "@/lib/api-error";
+import modelsList from "@/lib/models.json";
+import { toPrompt } from "@/lib/prompt";
+import { z } from "zod";
+import {
+  APICallError,
   streamText,
-  convertToCoreMessages,
-  Message,
-  LanguageModelV1,
+  convertToModelMessages,
+  createUIMessageStreamResponse,
+  toUIMessageStream,
+  validateUIMessages,
 } from "ai";
 
-// Allow streaming responses up to 60 seconds
 export const maxDuration = 60;
 
+const requestSchema = z.object({
+  messages: z.array(z.unknown()).min(1),
+  data: z.object({
+    files: z.array(
+      z.object({
+        name: z.string(),
+        contentType: z.string(),
+        content: z.string(),
+      })
+    ),
+    model: z.object({ id: z.string() }),
+    config: modelConfigSchema,
+  }),
+});
+
+export function GET() {
+  const availableModels = modelsList.models.filter((model) =>
+    Boolean(
+      process.env[
+        providerKeyNames[model.providerId as keyof typeof providerKeyNames]
+      ]
+    )
+  );
+  return Response.json({
+    defaultModel: availableModels[0]?.id,
+    configuredProviders: [
+      ...new Set(availableModels.map((model) => model.providerId)),
+    ],
+  });
+}
+
 export async function POST(req: Request) {
-  const {
-    messages,
-    data,
-  }: {
-    messages: Message[];
-    data: { files: CustomFiles[]; model: LLMModel; config: LLMModelConfig };
-  } = await req.json();
-  // Filter out tool invocations
-  const filteredMessages = messages.map((message) => {
-    if (message.toolInvocations) {
-      return {
-        ...message,
-        toolInvocations: undefined,
-      };
-    }
-    return message;
-  });
+  const body = requestSchema.safeParse(await req.json().catch(() => null));
+  if (!body.success) {
+    return new Response("Invalid chat request or model settings.", {
+      status: 400,
+    });
+  }
+  const { messages, data } = body.data;
+  const model = modelsList.models.find((entry) => entry.id === data.model.id);
+  if (!model) return new Response("Select a supported model.", { status: 400 });
+  const keyName =
+    providerKeyNames[model.providerId as keyof typeof providerKeyNames];
+  if (!data.config.apiKey && !process.env[keyName]) {
+    return new Response(
+      `Add an API key in settings or configure ${keyName} on the server.`,
+      { status: 503 }
+    );
+  }
 
-  const { model, apiKey, ...modelParams } = data.config;
+  let validatedMessages;
+  try {
+    validatedMessages = await validateUIMessages({ messages });
+  } catch {
+    return new Response("Invalid chat messages.", { status: 400 });
+  }
 
-  const modelClient = getModelClient(data.model, data.config);
-
-  const result = await streamText({
-    system: toPrompt(data),
-    model: modelClient as LanguageModelV1,
-    messages: convertToCoreMessages(filteredMessages),
-    ...modelParams,
-    // If the provider supports tooling, uncomment below
-    // tools: {
-    // runCode: {
-    //   description:
-    //     "Execute python code in a Jupyter notebook cell and return result",
-    //   parameters: z.object({
-    //     code: z
-    //       .string()
-    //       .describe("The python code to execute in a single cell"),
-    //   }),
-    //   execute: async ({ code }) => {
-    //     // Create a sandbox, execute LLM-generated code, and return the result
-    //     console.log("Executing code", code);
-    //     const sandbox = await Sandbox.create();
-
-    //     // Upload files
-    //     for (const file of data.files) {
-    //       await sandbox.files.write(file.name, atob(file.base64));
-    //     }
-    //     const { text, results, logs, error } = await sandbox.runCode(code);
-    //     console.log(text, results, logs, error);
-
-    //     return {
-    //       text,
-    //       results,
-    //       logs,
-    //       error,
-    //     };
-    //   },
-    // },
-    // },
-  });
-
-  return result.toDataStreamResponse();
+  try {
+    const result = streamText({
+      instructions: toPrompt(data),
+      model: getModelClient(model, data.config),
+      messages: await convertToModelMessages(validatedMessages),
+      ...getModelSettings(model, data.config),
+      abortSignal: req.signal,
+      onError: ({ error }) =>
+        console.error("Model request failed", {
+          provider: model.providerId,
+          status: APICallError.isInstance(error) ? error.statusCode : undefined,
+        }),
+    });
+    return createUIMessageStreamResponse({
+      stream: toUIMessageStream({
+        stream: result.stream,
+        sendReasoning: false,
+        onError: providerErrorMessage,
+      }),
+    });
+  } catch (error) {
+    return new Response(providerErrorMessage(error), { status: 502 });
+  }
 }

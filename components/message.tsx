@@ -1,12 +1,18 @@
-import { Message } from "ai";
+import type { UIMessage } from "ai";
 import { BotIcon, UserIcon } from "lucide-react";
 import Markdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { ToolOutput } from "./tooloutput";
-import { ToolResult } from "../lib/types";
+import type { SandboxResult } from "../lib/types";
 
-export function MessageComponent({ message }: { message: Message }) {
+export function MessageComponent({
+  message,
+  result,
+}: {
+  message: UIMessage;
+  result?: SandboxResult;
+}) {
   return (
     <div
       key={message.id}
@@ -47,9 +53,12 @@ export function MessageComponent({ message }: { message: Message }) {
               },
             }}
           >
-            {message.content}
+            {message.parts
+              .filter((part) => part.type === "text")
+              .map((part) => part.text)
+              .join("")}
           </Markdown>
-          <ToolOutput result={message.toolInvocations as ToolResult} />
+          <ToolOutput result={result} />
         </div>
       </div>
     </div>

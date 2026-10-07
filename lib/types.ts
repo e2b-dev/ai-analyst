@@ -1,9 +1,8 @@
-import { ToolInvocation } from "ai";
-import { Result } from "@e2b/code-interpreter";
+import type { Execution, Result } from "@e2b/code-interpreter";
 
-export type ToolResult = (ToolInvocation & {
-  result: Result;
-})[];
+export type SandboxResult = Pick<Execution, "logs" | "error"> & {
+  results: (ReturnType<Result["toJSON"]> & { chart?: Result["chart"] })[];
+};
 
 export type CustomFiles = {
   name: string;
