@@ -60,6 +60,12 @@ export async function POST(req: Request) {
   const { messages, data } = body.data;
   const model = modelsList.models.find((entry) => entry.id === data.model.id);
   if (!model) return new Response("Select a supported model.", { status: 400 });
+  if (data.config.baseURL && !data.config.apiKey) {
+    return new Response(
+      "A custom base URL requires your own API key in settings.",
+      { status: 400 }
+    );
+  }
   const keyName =
     providerKeyNames[model.providerId as keyof typeof providerKeyNames];
   if (!data.config.apiKey && !process.env[keyName]) {

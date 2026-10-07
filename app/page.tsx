@@ -10,6 +10,7 @@ import { extractCodeFromText } from "@/lib/code";
 import Logo from "@/components/logo";
 import { useEffect, useState } from "react";
 import modelsList from "@/lib/models.json";
+import { migrateModelConfig } from "@/lib/model-selection";
 import { LLMModelConfig } from "@/lib/model";
 import { LLMPicker } from "@/components/llm-picker";
 import { LLMSettings } from "@/components/llm-settings";
@@ -56,7 +57,7 @@ export default function Home() {
               setup.configuredProviders.includes(selected.providerId))
           )
             return previous;
-          return { ...previous, model: setup.defaultModel };
+          return { model: setup.defaultModel, maxTokens: previous.maxTokens };
         });
       })
       .catch(() => {});
@@ -64,10 +65,9 @@ export default function Home() {
 
   useEffect(() => {
     if (!modelsList.models.some((model) => model.id === languageModel.model)) {
-      setLanguageModel((previous) => ({
-        ...previous,
-        model: modelsList.models[0].id,
-      }));
+      setLanguageModel((previous) =>
+        migrateModelConfig(modelsList.models, previous)
+      );
     }
   }, [languageModel.model, setLanguageModel]);
 
@@ -107,8 +107,12 @@ export default function Home() {
           method: "POST",
           body: formData,
         });
-        const result = await response.json();
-        if (!response.ok)
+        const result = await response
+          .json()
+          .catch(() => ({
+            error: "Python execution failed. Please try again.",
+          }));
+        if (!response.ok || !Array.isArray(result.results))
           throw new Error(result.error || "Python execution failed.");
         setResults((previous) => ({ ...previous, [message.id]: result }));
       } catch (error) {

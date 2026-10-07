@@ -122,3 +122,26 @@ test("provider errors are actionable without exposing upstream bodies", () => {
     assert.ok(!message.includes("private"));
   }
 });
+
+// A retired saved model must not send its credentials to another provider.
+test("retired selections migrate within their provider and clear unsupported settings", async () => {
+  const { migrateModelConfig } = await import("../lib/model-selection.ts");
+  const models = [
+    { ...model, providerId: "fireworks", id: "accounts/fireworks/models/new" },
+    model,
+  ];
+  const migrated = migrateModelConfig(models, {
+    model: "o3",
+    apiKey: "openai-key",
+    temperature: 5,
+    baseURL: "https://example.test/v1",
+  });
+  assert.equal(migrated.model, model.id);
+  assert.equal(migrated.apiKey, "openai-key");
+  assert.equal(migrated.temperature, undefined);
+  assert.equal(
+    migrateModelConfig(models, { model: "unknown", apiKey: "private-key" })
+      .apiKey,
+    undefined
+  );
+});
