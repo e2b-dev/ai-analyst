@@ -65,7 +65,22 @@ test("OpenAI uses the supplied key and Responses URL without unsupported saved s
     };
     const response = await generateText({
       model: getModelClient(model, config),
-      prompt: "hello",
+      messages: [
+        { role: "user", content: "hello" },
+        {
+          role: "assistant",
+          content: [
+            {
+              type: "text",
+              text: "previous code",
+              providerOptions: {
+                openai: { itemId: "msg_previous", phase: "final_answer" },
+              },
+            },
+          ],
+        },
+        { role: "user", content: "follow up" },
+      ],
       ...getModelSettings(model, config),
     });
     assert.equal(response.text, "verified");
@@ -74,6 +89,13 @@ test("OpenAI uses the supplied key and Responses URL without unsupported saved s
     assert.equal(request.body.model, model.id);
     assert.equal(request.body.max_output_tokens, 1000);
     assert.equal(request.body.reasoning.effort, "low");
+    assert.equal(request.body.store, false);
+    assert.ok(!request.body.input.some((item) => item.type === "item_reference"));
+    assert.ok(
+      request.body.input.some(
+        (item) => item.role === "assistant" && item.content === "previous code"
+      )
+    );
     for (const key of [
       "temperature",
       "top_p",

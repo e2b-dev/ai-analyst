@@ -61,7 +61,11 @@ export function getModelSettings(model: LLMModel, config: LLMModelConfig) {
   if (model.providerId === "openai") {
     return {
       ...common,
-      providerOptions: { openai: { reasoningEffort: "low" as const } },
+      // The UI retains code text, not reasoning items. Replay that text rather
+      // than referencing stored response items with missing reasoning context.
+      providerOptions: {
+        openai: { reasoningEffort: "low" as const, store: false },
+      },
     };
   }
   if (model.providerId === "anthropic") return common;
