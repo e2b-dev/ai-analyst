@@ -1,13 +1,16 @@
 "use client";
 
 import { RepoBanner } from "@/components/repo-banner";
-import { useChat } from "ai/react";
+import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
+import type { SandboxResult } from "@/lib/types";
 import { MessageComponent } from "@/components/message";
 import { FileText, PlayIcon, PlusIcon, X } from "lucide-react";
 import { extractCodeFromText } from "@/lib/code";
 import Logo from "@/components/logo";
 import { useEffect, useState } from "react";
 import modelsList from "@/lib/models.json";
+import { migrateModelConfig } from "@/lib/model-selection";
 import { LLMModelConfig } from "@/lib/model";
 import { LLMPicker } from "@/components/llm-picker";
 import { LLMSettings } from "@/components/llm-settings";
@@ -23,77 +26,116 @@ export default function Home() {
     "Plot a chart of the last 10 years of the S&P 500",
   ];
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [input, setInput] = useState("");
+  const [isPreparing, setIsPreparing] = useState(false);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [executionError, setExecutionError] = useState<string>();
+  const [results, setResults] = useState<Record<string, SandboxResult>>({});
   const [languageModel, setLanguageModel] = useLocalStorage<LLMModelConfig>(
     "languageModel",
     {
-      model: "accounts/fireworks/models/llama4-maverick-instruct-basic",
+      model: "accounts/fireworks/models/deepseek-v4p1-flash",
     }
   );
 
-  const currentModel = modelsList.models.find(
-    (model) => model.id === languageModel.model
-  );
+  const currentModel =
+    modelsList.models.find((model) => model.id === languageModel.model) ??
+    modelsList.models[0];
+
+  useEffect(() => {
+    void fetch("/api/chat")
+      .then((response) => response.json())
+      .then((setup) => {
+        if (!setup.defaultModel) return;
+        setLanguageModel((previous) => {
+          const selected = modelsList.models.find(
+            (model) => model.id === previous.model
+          );
+          if (
+            previous.apiKey ||
+            (selected &&
+              setup.configuredProviders.includes(selected.providerId))
+          )
+            return previous;
+          return { model: setup.defaultModel, maxTokens: previous.maxTokens };
+        });
+      })
+      .catch(() => {});
+  }, [setLanguageModel]);
+
+  useEffect(() => {
+    if (!modelsList.models.some((model) => model.id === languageModel.model)) {
+      setLanguageModel((previous) =>
+        migrateModelConfig(modelsList.models, previous)
+      );
+    }
+  }, [languageModel.model, setLanguageModel]);
 
   function handleLanguageModelChange(e: LLMModelConfig) {
+    const selected = modelsList.models.find((model) => model.id === e.model);
+    if (selected && selected.providerId !== currentModel.providerId) {
+      setLanguageModel({
+        model: selected.id,
+        maxTokens: languageModel.maxTokens,
+      });
+      return;
+    }
     setLanguageModel({ ...languageModel, ...e });
   }
 
-  const {
-    messages,
-    input,
-    handleInputChange,
-    handleSubmit,
-    setMessages,
-    setInput,
-  } = useChat({
-    // Fake tool call
-    onFinish: async (message) => {
-      const code = extractCodeFromText(message.content);
-      if (code) {
+  const { messages, sendMessage, regenerate, status, error, stop } = useChat({
+    transport: new DefaultChatTransport({ api: "/api/chat" }),
+    onFinish: async ({ message, isAbort, isDisconnect, isError }) => {
+      if (isAbort || isDisconnect || isError) return;
+      const content = message.parts
+        .filter((part) => part.type === "text")
+        .map((part) => part.text)
+        .join("");
+      const code = extractCodeFromText(content);
+      if (!code) {
+        setExecutionError(
+          "The model did not return a Python code block. Try again."
+        );
+        return;
+      }
+      setIsExecuting(true);
+      try {
         const formData = new FormData();
         formData.append("code", code);
-
-        for (const file of files) {
-          formData.append(`file_${file.name}`, file);
-        }
-
+        for (const file of files) formData.append("files", file);
         const response = await fetch("/api/sandbox", {
           method: "POST",
           body: formData,
         });
-
-        const result = await response.json();
-
-        // add tool call result to the last message
-        message.toolInvocations = [
-          {
-            state: "result",
-            toolCallId: message.id,
-            toolName: "runCode",
-            args: code,
-            result,
-          },
-        ];
-
-        console.log("Result:", result);
-        setFiles([]);
-        setMessages((prev) => {
-          // replace last message with the new message
-          return [...prev.slice(0, -1), message];
-        });
+        const result = await response
+          .json()
+          .catch(() => ({
+            error: "Python execution failed. Please try again.",
+          }));
+        if (!response.ok || !Array.isArray(result.results))
+          throw new Error(result.error || "Python execution failed.");
+        setResults((previous) => ({ ...previous, [message.id]: result }));
+      } catch (error) {
+        setExecutionError(
+          error instanceof Error ? error.message : "Python execution failed."
+        );
+      } finally {
+        setIsExecuting(false);
       }
-
-      setIsLoading(false);
     },
   });
+  const isLoading =
+    isPreparing ||
+    isExecuting ||
+    status === "submitted" ||
+    status === "streaming";
 
   useEffect(() => {
     const messagesElement = document.getElementById("messages");
     if (messagesElement) {
       messagesElement.scrollTop = messagesElement.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, results]);
 
   function handleFileInput(e: React.ChangeEvent<HTMLInputElement>) {
     setFiles((prev) => [...prev, ...Array.from(e.target.files || [])]);
@@ -103,19 +145,37 @@ export default function Home() {
     setFiles((prev) => prev.filter((f) => f !== file));
   }
 
-  async function customSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!currentModel) throw Error("No model is selected.");
-    setIsLoading(true);
-    handleSubmit(e, {
-      data: {
+  async function submit(retry = false) {
+    if (isLoading) return;
+    setExecutionError(undefined);
+    setIsPreparing(true);
+    try {
+      const data = {
         files: await Promise.all(
-          files.map((f) => toUploadableFile(f, { cutOff: 5 }))
+          files.map((file) => toUploadableFile(file, { cutOff: 5 }))
         ),
         model: currentModel,
         config: languageModel,
-      },
-    });
+      };
+      if (retry) {
+        await regenerate({ body: { data } });
+      } else {
+        const text = input;
+        setInput("");
+        await sendMessage({ text }, { body: { data } });
+      }
+    } catch (error) {
+      setExecutionError(
+        error instanceof Error ? error.message : "The request failed."
+      );
+    } finally {
+      setIsPreparing(false);
+    }
+  }
+
+  function customSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (input.trim()) void submit();
   }
 
   return (
@@ -139,7 +199,7 @@ export default function Home() {
 
       <div className="flex-1 overflow-y-auto pt-14" id="messages">
         {messages.map((m) => (
-          <MessageComponent key={m.id} message={m} />
+          <MessageComponent key={m.id} message={m} result={results[m.id]} />
         ))}
       </div>
 
@@ -152,6 +212,7 @@ export default function Home() {
                   <button
                     key={msg}
                     className="flex items-center gap-2 p-1.5 border rounded-lg text-gray-800"
+                    disabled={isLoading}
                     onClick={() => setInput(msg)}
                   >
                     <span className="text-sm truncate">{msg}</span>
@@ -168,6 +229,7 @@ export default function Home() {
                 <span className="text-sm truncate">{file.name}</span>
                 <button
                   type="button"
+                  aria-label={`Remove ${file.name}`}
                   onClick={() => handleFileRemove(file)}
                   className="cursor-pointer"
                   disabled={isLoading}
@@ -182,10 +244,13 @@ export default function Home() {
             <div className="flex gap-2">
               <LLMPicker
                 models={modelsList.models}
-                languageModel={languageModel}
+                languageModel={{ ...languageModel, model: currentModel.id }}
+                disabled={isLoading}
                 onLanguageModelChange={handleLanguageModelChange}
               />
               <LLMSettings
+                providerId={currentModel.providerId}
+                disabled={isLoading}
                 apiKeyConfigurable={!process.env.NEXT_PUBLIC_NO_API_KEY_INPUT}
                 baseURLConfigurable={!process.env.NEXT_PUBLIC_NO_BASE_URL_INPUT}
                 languageModel={languageModel}
@@ -193,9 +258,29 @@ export default function Home() {
               />
             </div>
             {isLoading && (
-              <span className="text-xs text-gray-700">Loading…</span>
+              <span role="status" className="text-xs text-gray-700">
+                {isExecuting ? "Running Python…" : "Generating…"}
+              </span>
+            )}
+            {(status === "submitted" || status === "streaming") && (
+              <button type="button" onClick={() => stop()}>
+                Stop
+              </button>
             )}
           </div>
+          {(error || executionError) && (
+            <div role="alert" className="text-sm text-red-600">
+              {executionError || error?.message}
+              <button
+                type="button"
+                className="ml-2 underline"
+                disabled={isLoading}
+                onClick={() => void submit(true)}
+              >
+                Retry
+              </button>
+            </div>
+          )}
           <form
             onSubmit={customSubmit}
             className="flex border p-2 border-1.5 border-border rounded-xl overflow-hidden shadow-sm"
@@ -207,10 +292,13 @@ export default function Home() {
               accept=".txt,.csv,.json,.md,.py"
               multiple={true}
               className="hidden"
+              disabled={isLoading}
               onChange={handleFileInput}
             />
             <button
               type="button"
+              aria-label="Attach files"
+              disabled={isLoading}
               className="border p-1.5 rounded-lg hover:bg-slate-200 text-slate-800"
               onClick={(e) => {
                 e.preventDefault();
@@ -225,10 +313,14 @@ export default function Home() {
               className="w-full px-2 outline-none"
               value={input}
               placeholder="Enter your prompt..."
-              onChange={handleInputChange}
+              aria-label="Analysis prompt"
+              disabled={isLoading}
+              onChange={(e) => setInput(e.target.value)}
             />
             <button
               type="submit"
+              aria-label="Run analysis"
+              disabled={isLoading || !input.trim()}
               className="bg-orange-500 text-white p-1.5 rounded-lg hover:bg-orange-500/80"
             >
               <PlayIcon className="w-5 h-5" />
