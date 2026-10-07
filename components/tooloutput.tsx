@@ -13,7 +13,7 @@ export function ToolOutput({ result }: { result: SandboxResult | undefined }) {
 
   if (toolResult?.error) {
     return (
-      <div className="text-red-500 border border-red-200 rounded-xl bg-red-500/10 text-sm">
+      <div className="text-destructive border border-destructive/30 rounded-none bg-error-muted text-sm">
         <div className="flex items-center gap-2 pt-4 px-4">
           <AlertTriangle className="w-4 h-4" />
           <span className="font-semibold">Error: {toolResult.error.name}</span>
@@ -31,18 +31,19 @@ export function ToolOutput({ result }: { result: SandboxResult | undefined }) {
         </pre>
       )}
       {toolResult.results.map((result, index: number) => (
-        <div key={index} className="flex flex-col border rounded-xl shadow-sm">
-          <div className="flex items-center justify-between p-2">
-            <div className="p-2 font-semibold text-gray-800 text-sm flex items-center gap-2">
+        <div
+          key={index}
+          className="flex flex-col border rounded-none shadow-sm"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2 p-2">
+            <div className="p-2 font-semibold text-foreground text-sm flex items-center gap-2">
               <ChartNoAxesCombined className="w-4 h-4" />
               {(result.chart ?? result.extra?.chart)?.title}
             </div>
-            <div className="flex justify-end border rounded-lg overflow-hidden">
+            <div className="flex shrink-0 justify-end border rounded-none overflow-hidden">
               <button
                 className={`px-3 py-2 font-semibold text-sm ${
-                  viewMode === "static"
-                    ? "bg-orange-500/10 text-orange-500"
-                    : ""
+                  viewMode === "static" ? "bg-brand-muted text-brand" : ""
                 }`}
                 onClick={() => setViewMode("static")}
               >
@@ -50,9 +51,7 @@ export function ToolOutput({ result }: { result: SandboxResult | undefined }) {
               </button>
               <button
                 className={`px-3 py-2 font-semibold text-sm ${
-                  viewMode === "interactive"
-                    ? "bg-orange-500/10 text-orange-500"
-                    : ""
+                  viewMode === "interactive" ? "bg-brand-muted text-brand" : ""
                 }`}
                 onClick={() => setViewMode("interactive")}
               >

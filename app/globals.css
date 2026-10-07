@@ -1,66 +1,83 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* E2B design tokens: https://ui.e2b.dev/theme */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem
+    --bg: #fafafa;
+    --bg-1: #f5f5f5;
+    --bg-hover: #f5f5f5;
+    --bg-inverted: #0a0a0a;
+    --fg: #0a0a0a;
+    --fg-secondary: #333333;
+    --fg-tertiary: #707070;
+    --fg-inverted: #ffffff;
+    --stroke: #d6d6d6;
+    --accent-main-highlight: #e56f00;
+    --accent-main-bg: #e56f0029;
+    --accent-positive-highlight: #00a670;
+    --accent-info-highlight: #3c98c7;
+    --accent-warning-highlight: #d1a102;
+    --accent-error-highlight: #ff4400;
+    --accent-error-bg: rgba(255, 68, 0, 0.16);
+    --background: var(--bg);
+    --foreground: var(--fg);
+    --card: var(--bg);
+    --card-foreground: var(--fg);
+    --popover: var(--bg);
+    --popover-foreground: var(--fg);
+    --primary: var(--bg-inverted);
+    --primary-foreground: var(--fg-inverted);
+    --secondary: var(--bg-1);
+    --secondary-foreground: var(--fg);
+    --muted: var(--bg-1);
+    --muted-foreground: var(--fg-tertiary);
+    --accent: var(--bg-hover);
+    --accent-foreground: var(--fg);
+    --destructive: var(--accent-error-highlight);
+    --destructive-foreground: var(--fg-inverted);
+    --border: var(--stroke);
+    --input: var(--stroke);
+    --ring: var(--accent-main-highlight);
+    --chart-1: var(--accent-main-highlight);
+    --chart-2: var(--accent-positive-highlight);
+    --chart-3: var(--accent-info-highlight);
+    --chart-4: var(--accent-warning-highlight);
+    --chart-5: var(--accent-error-highlight);
+    --radius: 0rem;
+    color-scheme: light;
   }
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0a0a0a;
+      --bg-1: #141414;
+      --bg-hover: #141414;
+      --bg-inverted: #ffffff;
+      --fg: #ffffff;
+      --fg-secondary: #e0e0e0;
+      --fg-tertiary: #848484;
+      --fg-inverted: #0a0a0a;
+      --stroke: #292929;
+      --accent-main-highlight: #ff8800;
+      --accent-main-bg: rgba(255, 136, 0, 0.16);
+      --accent-positive-highlight: #00d992;
+      --accent-info-highlight: #59a8e1;
+      --accent-warning-highlight: #ffff00;
+      --accent-error-highlight: #f54545;
+      --accent-error-bg: rgba(245, 69, 69, 0.16);
+      color-scheme: dark;
+    }
   }
-}
-@layer base {
+
   * {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+  button:disabled {
+    @apply cursor-not-allowed opacity-60;
   }
 }
