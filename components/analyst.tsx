@@ -9,8 +9,10 @@ import Logo from "@/components/logo";
 import { useEffect, useState } from "react";
 import {
   getRequestModelConfig,
+  migrateStoredModelSettings,
   type LLMModel,
   type LLMModelConfig,
+  type LLMModelSettings,
 } from "@/lib/model-config";
 import { LLMPicker } from "@/components/llm-picker";
 import { LLMSettings } from "@/components/llm-settings";
@@ -27,12 +29,15 @@ export default function Analyst({ models }: { models: LLMModel[] }) {
   ];
 
   const [isLoading, setIsLoading] = useState(false);
-  const [languageModel, setLanguageModel] = useLocalStorage<LLMModelConfig>(
+  const [languageModel, setLanguageModel] = useLocalStorage<LLMModelSettings>(
     "languageModel",
     {
       model: "accounts/fireworks/models/llama4-maverick-instruct-basic",
     },
-    { deserializer: (value) => getRequestModelConfig(JSON.parse(value)) }
+    {
+      initializeWithValue: false,
+      deserializer: (value) => migrateStoredModelSettings(JSON.parse(value)),
+    }
   );
 
   const currentModel = models.find(
@@ -40,8 +45,19 @@ export default function Analyst({ models }: { models: LLMModel[] }) {
   );
 
   function handleLanguageModelChange(e: LLMModelConfig) {
-    setLanguageModel({ ...languageModel, ...e });
+    setLanguageModel({
+      ...languageModel,
+      ...e,
+      needsCredentialReview: e.apiKey?.trim()
+        ? undefined
+        : languageModel.needsCredentialReview,
+    });
   }
+
+  useEffect(() => {
+    // Remove the obsolete endpoint and key from storage, preserving the pause.
+    setLanguageModel(migrateStoredModelSettings);
+  }, [setLanguageModel]);
 
   const {
     messages,
@@ -110,6 +126,8 @@ export default function Analyst({ models }: { models: LLMModel[] }) {
   async function customSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!currentModel) throw Error("No model is selected.");
+    const config = getRequestModelConfig(languageModel);
+    if (!config) return;
     setIsLoading(true);
     handleSubmit(e, {
       data: {
@@ -117,7 +135,7 @@ export default function Analyst({ models }: { models: LLMModel[] }) {
           files.map((f) => toUploadableFile(f, { cutOff: 5 }))
         ),
         model: currentModel,
-        config: getRequestModelConfig(languageModel),
+        config,
       },
     });
   }
@@ -199,6 +217,29 @@ export default function Analyst({ models }: { models: LLMModel[] }) {
               <span className="text-xs text-gray-700">Loading…</span>
             )}
           </div>
+          {languageModel.needsCredentialReview && (
+            <div role="alert" className="rounded-lg border border-orange-200 bg-orange-50 p-3 text-sm text-gray-800">
+              <p>Your saved custom endpoint and its API key were removed.</p>
+              <p className="mt-1">
+                {!process.env.NEXT_PUBLIC_NO_API_KEY_INPUT
+                  ? "Enter a new key for the selected provider in settings, or choose the app’s default credentials."
+                  : "Choose the app’s default credentials to continue."}
+              </p>
+              <button
+                type="button"
+                className="mt-2 rounded-md border border-orange-300 bg-white px-3 py-1.5 font-medium"
+                onClick={() =>
+                  setLanguageModel({
+                    ...languageModel,
+                    apiKey: undefined,
+                    needsCredentialReview: undefined,
+                  })
+                }
+              >
+                Use app credentials
+              </button>
+            </div>
+          )}
           <form
             onSubmit={customSubmit}
             className="flex border p-2 border-1.5 border-border rounded-xl overflow-hidden shadow-sm"
@@ -232,7 +273,9 @@ export default function Analyst({ models }: { models: LLMModel[] }) {
             />
             <button
               type="submit"
-              className="bg-orange-500 text-white p-1.5 rounded-lg hover:bg-orange-500/80"
+              disabled={languageModel.needsCredentialReview}
+              aria-label="Send message"
+              className="bg-orange-500 text-white p-1.5 rounded-lg hover:bg-orange-500/80 disabled:opacity-50"
             >
               <PlayIcon className="w-5 h-5" />
             </button>

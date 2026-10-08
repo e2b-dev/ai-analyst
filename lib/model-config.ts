@@ -30,6 +30,9 @@ export const llmModelConfigSchema = z.object({
 
 export type LLMModel = z.infer<typeof llmModelSchema>;
 export type LLMModelConfig = z.infer<typeof llmModelConfigSchema>;
+export type LLMModelSettings = LLMModelConfig & {
+  needsCredentialReview?: boolean;
+};
 
 export function getModelParams(config: LLMModelConfig) {
   const {
@@ -40,7 +43,30 @@ export function getModelParams(config: LLMModelConfig) {
   };
 }
 
-// Older localStorage entries may still contain baseURL or other retired fields.
-export function getRequestModelConfig(config: LLMModelConfig): LLMModelConfig {
+// A saved custom endpoint and its credential are a pair. Discard both and keep
+// submissions paused across reloads until the user chooses new credentials.
+export function migrateStoredModelSettings(value: unknown): LLMModelSettings {
+  const stored = value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
+  const needsCredentialReview = Object.hasOwn(stored, "baseURL") ||
+    stored.needsCredentialReview === true;
+  const parsed = llmModelConfigSchema.strip().safeParse({
+    ...stored,
+    apiKey: needsCredentialReview ? undefined : stored.apiKey,
+  });
+  if (!parsed.success) return { needsCredentialReview: true };
+  return {
+    ...parsed.data,
+    needsCredentialReview: needsCredentialReview || undefined,
+  };
+}
+
+export function getRequestModelConfig(
+  config: LLMModelSettings,
+): LLMModelConfig | undefined {
+  if (config.needsCredentialReview || Object.hasOwn(config, "baseURL")) {
+    return undefined;
+  }
   return { model: config.model, apiKey: config.apiKey, ...getModelParams(config) };
 }

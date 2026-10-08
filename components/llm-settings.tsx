@@ -25,6 +25,7 @@ export function LLMSettings({
         <Button
           variant="ghost"
           size="icon"
+          aria-label="Model settings"
           className="text-muted-foreground h-6 w-6 rounded-sm"
         >
           <Settings2 className="h-4 w-4" />

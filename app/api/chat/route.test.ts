@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { mockProviders, modelFor, providers } from "@/test/provider-transport";
-import { getRequestModelConfig } from "@/lib/model-config";
+import { getRequestModelConfig, migrateStoredModelSettings } from "@/lib/model-config";
 import { POST } from "./route";
 
 const transport = mockProviders();
@@ -144,18 +144,34 @@ describe("/api/chat provider requests", () => {
     assert.ok(!transport.requests[0].body.includes("sandbox-result-marker"));
   });
 
-  it("accepts migrated browser settings and forwards supported sampling parameters", async () => {
-    const config = getRequestModelConfig(JSON.parse(JSON.stringify({
-      model: modelFor("fireworks").id, apiKey: "client-key", baseURL: "http://old-endpoint.test",
-      headers: {}, temperature: 0.4, maxTokens: 100,
-    })));
-    const response = await post(bodyFor("fireworks", config));
-    assert.equal(response.status, 200);
-    assert.ok((await response.text()).includes("Hello"));
-    const body = JSON.parse(transport.requests[0].body);
-    assert.equal(body.temperature, 0.4);
-    assert.equal(body.max_tokens, 100);
-  });
+  for (const mode of ["server", "byok"] as const) {
+    it(`uses only the explicitly chosen ${mode} credential after browser migration`, async () => {
+      const settings = migrateStoredModelSettings({
+        model: modelFor("fireworks").id, apiKey: "old-gateway-key", baseURL: "https://old-endpoint.test",
+        headers: {}, temperature: 0.4, maxTokens: 100,
+      });
+      assert.equal(getRequestModelConfig(settings), undefined);
+      assert.equal(transport.requests.length, 0);
+      const config = getRequestModelConfig({
+        ...settings,
+        apiKey: mode === "byok" ? "new-fireworks-key" : undefined,
+        needsCredentialReview: undefined,
+      });
+      assert.ok(config);
+      const response = await post(bodyFor("fireworks", config));
+      assert.equal(response.status, 200);
+      assert.ok((await response.text()).includes("Hello"));
+      assert.equal(transport.requests.length, 1);
+      const request = transport.requests[0];
+      assert.equal(request.url.origin, "https://api.fireworks.ai");
+      assert.equal(request.headers.get("authorization"),
+        `Bearer ${mode === "byok" ? "new-fireworks-key" : "server-fireworks"}`);
+      assert.ok(!JSON.stringify([...request.headers]).includes("old-gateway-key"));
+      const body = JSON.parse(request.body);
+      assert.equal(body.temperature, 0.4);
+      assert.equal(body.max_tokens, 100);
+    });
+  }
 
   it("streams the allowlisted Ollama model when its HTTPS endpoint is configured", async () => {
     process.env.OLLAMA_BASE_URL = "https://ollama.test/api";

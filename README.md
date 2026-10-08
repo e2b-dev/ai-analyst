@@ -66,6 +66,11 @@ Supplying a non-empty key selects BYOK; an invalid or rejected caller key never
 falls back to the server key. Blank and non-string keys are rejected before any
 provider request.
 
+Saved browser settings containing a retired custom endpoint are migrated by
+removing both the endpoint and its API key. Chat stays paused across reloads
+until the user enters a new key for the selected provider or explicitly chooses
+the app's default credentials.
+
 Ollama supports the allowlisted `llama3.1` model when `OLLAMA_BASE_URL` is set to
 an HTTPS endpoint, for example `https://ollama.example.com/api`. Install that
 model on your Ollama server. A local HTTP Ollama server needs a TLS reverse proxy.
