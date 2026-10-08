@@ -122,8 +122,8 @@ export default function Home() {
     <div className="flex flex-col min-h-screen max-h-screen">
       <nav className="flex gap-0.5 justify-between items-center px-4 py-3 top-0 fixed left-0 right-0 bg-white/80 backdrop-blur-sm shadow-sm z-10">
         <div className="flex items-center gap-2 w-full max-w-2xl mx-auto">
-          <Logo className="w-6 h-6" />
-          <h1 className="text-md font-medium">
+          <Logo className="h-[15px] w-auto shrink-0" />
+          <h1 className="text-md font-medium whitespace-nowrap">
             Analyst by{" "}
             <a
               href="https://e2b.dev"
