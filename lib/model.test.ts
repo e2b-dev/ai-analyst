@@ -1,118 +1,99 @@
 import assert from "node:assert/strict";
-import { afterEach, beforeEach, describe, it } from "node:test";
-import { generateText, LanguageModelV1 } from "ai";
-import {
-  getModelClient,
-  getModelParams,
-  LLMModel,
-  LLMModelConfig,
-  resolveModel,
-} from "./model";
-import modelsList from "./models.json";
+import { describe, it } from "node:test";
+import { streamText, type LanguageModelV1 } from "ai";
+import { getAvailableModels, getModelClient, ProviderConfigurationError, resolveModel } from "./model";
+import type { LLMModel, LLMModelConfig } from "./model-config";
+import { mockProviders, modelFor, providers } from "../test/provider-transport";
 
-const customBaseURL = "https://custom-endpoint.example/v1";
+const transport = mockProviders();
 
-const providerHosts: Record<string, string> = {
-  anthropic: "api.anthropic.com",
-  google: "generativelanguage.googleapis.com",
-  openai: "api.openai.com",
-  fireworks: "api.fireworks.ai",
-};
-
-const originalFetch = globalThis.fetch;
-let requestedHosts: string[] = [];
-
-beforeEach(() => {
-  process.env.ANTHROPIC_API_KEY = "test-key";
-  process.env.GOOGLE_GENERATIVE_AI_API_KEY = "test-key";
-  process.env.OPENAI_API_KEY = "test-key";
-  process.env.FIREWORKS_API_KEY = "test-key";
-  delete process.env.OLLAMA_BASE_URL;
-  requestedHosts = [];
-  globalThis.fetch = async (input) => {
-    const url = input instanceof Request ? input.url : input.toString();
-    requestedHosts.push(new URL(url).host);
-    throw new Error("network is disabled in tests");
-  };
-});
-
-afterEach(() => {
-  globalThis.fetch = originalFetch;
-});
-
-function firstModelOf(providerId: string) {
-  const model = modelsList.models.find((m) => m.providerId === providerId);
-  assert.ok(model, `models.json has no ${providerId} model`);
-  return model;
+async function sendPrompt(model: LLMModel, config: LLMModelConfig = {}) {
+  const result = await streamText({
+    model: getModelClient(model, config) as LanguageModelV1,
+    prompt: "Hello", maxRetries: 0,
+  });
+  let text = "";
+  for await (const delta of result.textStream) text += delta;
+  return text;
 }
 
-async function sendPrompt(model: LanguageModelV1) {
-  await generateText({ model, prompt: "Hello", maxRetries: 0 }).catch(
-    () => {},
-  );
-}
+describe("provider credentials and destinations", () => {
+  for (const provider of providers) {
+    for (const mode of ["server", "byok"] as const) {
+      it(`${provider.id}: ${mode} mode sends only the selected credential to HTTPS`, async () => {
+        const config = mode === "byok" ? { apiKey: "client-key" } : {};
+        assert.equal(await sendPrompt(modelFor(provider.id), config), "Hello");
+        assert.equal(transport.requests.length, 1);
+        const request = transport.requests[0];
+        const key = mode === "byok" ? "client-key" : `server-${provider.id}`;
+        assert.equal(request.url.protocol, "https:");
+        assert.equal(request.url.host, provider.host);
+        assert.equal(request.headers.get(provider.header), provider.prefix + key);
+        assert.equal(request.redirect, "error");
+        assert.ok(!request.url.href.includes(key));
+        assert.ok(!request.body.includes(key));
+      });
+    }
 
-describe("getModelClient", () => {
-  for (const [providerId, host] of Object.entries(providerHosts)) {
-    it(`sends ${providerId} requests to ${host}, ignoring a client base URL`, async () => {
-      const config = { baseURL: customBaseURL } as LLMModelConfig;
-      const client = getModelClient(firstModelOf(providerId), config);
+    it(`${provider.id}: BYOK works without an environment credential`, async () => {
+      delete process.env[provider.env];
+      assert.equal(await sendPrompt(modelFor(provider.id), { apiKey: "client-key" }), "Hello");
+      assert.equal(transport.requests[0].headers.get(provider.header), provider.prefix + "client-key");
+    });
 
-      await sendPrompt(client as LanguageModelV1);
+    it(`${provider.id}: a missing server key fails before SDK construction`, () => {
+      delete process.env[provider.env];
+      assert.throws(() => getModelClient(modelFor(provider.id), {}), ProviderConfigurationError);
+      assert.deepEqual(transport.requests, []);
+    });
 
-      assert.deepEqual(requestedHosts, [host]);
+    it(`${provider.id}: invalid supplied keys cannot select server credentials`, () => {
+      for (const apiKey of ["", " ", "\t\n", null, false, 0, {}, []]) {
+        assert.throws(() => getModelClient(modelFor(provider.id), { apiKey } as LLMModelConfig));
+      }
+      assert.deepEqual(transport.requests, []);
+    });
+
+    it(`${provider.id}: direct callers cannot supply endpoint overrides`, () => {
+      assert.throws(() => getModelClient(modelFor(provider.id), { baseURL: "https://attacker.example" } as LLMModelConfig));
+      assert.deepEqual(transport.requests, []);
     });
   }
 
-  it("sends ollama requests to OLLAMA_BASE_URL, ignoring a client base URL", async () => {
-    process.env.OLLAMA_BASE_URL = "http://ollama.test:11434/api";
-    const model: LLMModel = {
-      id: "llama3.1",
-      name: "Llama 3.1",
-      provider: "Ollama",
-      providerId: "ollama",
-    };
-    const config = { baseURL: customBaseURL } as LLMModelConfig;
-
-    await sendPrompt(getModelClient(model, config) as LanguageModelV1);
-
-    assert.deepEqual(requestedHosts, ["ollama.test:11434"]);
+  it("a rejected BYOK key never triggers an OpenAI environment fallback", async () => {
+    transport.rejectRequests = true;
+    await assert.rejects(sendPrompt(modelFor("openai"), { apiKey: "rejected-client-key" }));
+    assert.equal(transport.requests.length, 1);
+    assert.equal(transport.requests[0].headers.get("authorization"), "Bearer rejected-client-key");
   });
 });
 
-describe("resolveModel", () => {
-  it("returns the model from models.json", () => {
-    const model = firstModelOf("openai");
-
+describe("Ollama allowlist and configuration", () => {
+  it("enables and streams an allowlisted Ollama model over HTTPS", async () => {
+    process.env.OLLAMA_BASE_URL = "https://ollama.test/api";
+    const model = modelFor("ollama");
     assert.deepEqual(resolveModel(model.id), model);
+    assert.ok(getAvailableModels().some((entry) => entry.id === model.id));
+    assert.equal(await sendPrompt(model), "Hello");
+    assert.equal(transport.requests[0].url.href, "https://ollama.test/api/chat");
+    assert.equal(transport.requests[0].headers.get("authorization"), null);
+    assert.equal(transport.requests[0].redirect, "error");
   });
 
-  it("rejects IDs that are not in models.json", () => {
-    for (const id of ["not-a-model", "constructor", undefined, 42]) {
+  for (const endpoint of [undefined, "", "not a URL", "http://ollama.test/api", "https://user:key@ollama.test/api", "https://ollama.test/api?key=secret", "https://ollama.test/api#fragment"]) {
+    it(`disables Ollama for ${String(endpoint)}`, () => {
+      if (endpoint !== undefined) process.env.OLLAMA_BASE_URL = endpoint;
+      assert.equal(resolveModel("llama3.1"), undefined);
+      assert.ok(getAvailableModels().every((model) => model.providerId !== "ollama"));
+      assert.throws(() => getModelClient(modelFor("ollama"), {}), ProviderConfigurationError);
+      assert.deepEqual(transport.requests, []);
+    });
+  }
+
+  it("rejects unknown model IDs even when Ollama is configured", () => {
+    process.env.OLLAMA_BASE_URL = "https://ollama.test/api";
+    for (const id of ["unapproved-model", "constructor", undefined, 42]) {
       assert.equal(resolveModel(id), undefined);
     }
-  });
-});
-
-describe("getModelParams", () => {
-  it("keeps only the sampling parameters", () => {
-    const config = {
-      model: "o3",
-      apiKey: "user-key",
-      baseURL: customBaseURL,
-      headers: { "X-Custom": "1" },
-      maxRetries: 5,
-      temperature: 0.5,
-      maxTokens: 100,
-    } as LLMModelConfig;
-
-    assert.deepEqual(getModelParams(config), {
-      temperature: 0.5,
-      topP: undefined,
-      topK: undefined,
-      frequencyPenalty: undefined,
-      presencePenalty: undefined,
-      maxTokens: 100,
-    });
   });
 });

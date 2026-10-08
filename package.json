@@ -10,7 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "tsx --test lib/*.test.ts app/api/chat/*.test.ts"
+    "test": "node --import tsx --test lib/*.test.ts app/api/chat/*.test.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.2.12",

@@ -8,7 +8,7 @@ import {
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Settings2 } from "lucide-react";
-import { LLMModelConfig } from "@/lib/model";
+import type { LLMModelConfig } from "@/lib/model-config";
 
 export function LLMSettings({
   apiKeyConfigurable,

@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 
-import { LLMModel, LLMModelConfig } from "@/lib/model";
+import type { LLMModel, LLMModelConfig } from "@/lib/model-config";
 import "core-js/features/object/group-by.js";
 import Image from "next/image";
 
