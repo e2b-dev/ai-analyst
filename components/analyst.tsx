@@ -29,10 +29,11 @@ export default function Analyst({ models }: { models: LLMModel[] }) {
   ];
 
   const [isLoading, setIsLoading] = useState(false);
+  const defaultModelId = "claude-sonnet-4-5-20250929";
   const [languageModel, setLanguageModel] = useLocalStorage<LLMModelSettings>(
     "languageModel",
     {
-      model: "accounts/fireworks/models/llama4-maverick-instruct-basic",
+      model: defaultModelId,
     },
     {
       initializeWithValue: false,
@@ -40,9 +41,14 @@ export default function Analyst({ models }: { models: LLMModel[] }) {
     }
   );
 
-  const currentModel = models.find(
-    (model) => model.id === languageModel.model
-  );
+  // A model removed from models.json can still be saved in localStorage. Fall
+  // back to the default only without a saved key, which may belong to the
+  // removed model's provider.
+  const currentModel =
+    models.find((model) => model.id === languageModel.model) ??
+    (languageModel.apiKey === undefined
+      ? models.find((model) => model.id === defaultModelId)
+      : undefined);
 
   function handleLanguageModelChange(e: LLMModelConfig) {
     setLanguageModel({
@@ -126,7 +132,10 @@ export default function Analyst({ models }: { models: LLMModel[] }) {
   async function customSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!currentModel) throw Error("No model is selected.");
-    const config = getRequestModelConfig(languageModel);
+    const config = getRequestModelConfig({
+      ...languageModel,
+      model: currentModel.id,
+    });
     if (!config) return;
     setIsLoading(true);
     handleSubmit(e, {
@@ -204,7 +213,7 @@ export default function Analyst({ models }: { models: LLMModel[] }) {
             <div className="flex gap-2">
               <LLMPicker
                 models={models}
-                languageModel={languageModel}
+                languageModel={{ ...languageModel, model: currentModel?.id }}
                 onLanguageModelChange={handleLanguageModelChange}
               />
               <LLMSettings
@@ -273,7 +282,7 @@ export default function Analyst({ models }: { models: LLMModel[] }) {
             />
             <button
               type="submit"
-              disabled={languageModel.needsCredentialReview}
+              disabled={languageModel.needsCredentialReview || !currentModel}
               aria-label="Send message"
               className="bg-orange-500 text-white p-1.5 rounded-lg hover:bg-orange-500/80 disabled:opacity-50"
             >

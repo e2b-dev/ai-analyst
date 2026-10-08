@@ -51,6 +51,8 @@ E2B: `E2B_API_KEY`
 
 LLM Providers:
 
+- Anthropic: `ANTHROPIC_API_KEY`
+- OpenAI: `OPENAI_API_KEY`
 - Fireworks: `FIREWORKS_API_KEY`
 - Together AI: `TOGETHER_API_KEY`
 - Ollama: `OLLAMA_BASE_URL`
