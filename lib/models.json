@@ -1,6 +1,12 @@
 {
   "models": [
     {
+      "id": "llama3.1",
+      "provider": "Ollama",
+      "providerId": "ollama",
+      "name": "Llama 3.1"
+    },
+    {
       "id": "claude-opus-4-20250514",
       "provider": "Anthropic",
       "providerId": "anthropic",
