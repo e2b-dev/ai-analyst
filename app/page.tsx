@@ -187,7 +187,6 @@ export default function Home() {
               />
               <LLMSettings
                 apiKeyConfigurable={!process.env.NEXT_PUBLIC_NO_API_KEY_INPUT}
-                baseURLConfigurable={!process.env.NEXT_PUBLIC_NO_BASE_URL_INPUT}
                 languageModel={languageModel}
                 onLanguageModelChange={handleLanguageModelChange}
               />

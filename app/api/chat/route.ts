@@ -1,6 +1,12 @@
 // import { z } from "zod";
 // import { Sandbox } from "@e2b/code-interpreter";
-import { getModelClient, LLMModel, LLMModelConfig } from "@/lib/model";
+import {
+  getModelClient,
+  getModelParams,
+  LLMModel,
+  LLMModelConfig,
+  resolveModel,
+} from "@/lib/model";
 import { toPrompt } from "@/lib/prompt";
 import { CustomFiles } from "@/lib/types";
 import {
@@ -21,6 +27,12 @@ export async function POST(req: Request) {
     messages: Message[];
     data: { files: CustomFiles[]; model: LLMModel; config: LLMModelConfig };
   } = await req.json();
+
+  const llm = resolveModel(data?.model?.id);
+  if (!llm) {
+    return new Response("Unsupported model", { status: 400 });
+  }
+
   // Filter out tool invocations
   const filteredMessages = messages.map((message) => {
     if (message.toolInvocations) {
@@ -32,15 +44,13 @@ export async function POST(req: Request) {
     return message;
   });
 
-  const { model, apiKey, ...modelParams } = data.config;
-
-  const modelClient = getModelClient(data.model, data.config);
+  const modelClient = getModelClient(llm, data.config);
 
   const result = await streamText({
     system: toPrompt(data),
     model: modelClient as LanguageModelV1,
     messages: convertToCoreMessages(filteredMessages),
-    ...modelParams,
+    ...getModelParams(data.config),
     // If the provider supports tooling, uncomment below
     // tools: {
     // runCode: {
