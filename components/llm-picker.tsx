@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "../components/ui/select";
 
-import { LLMModel, LLMModelConfig } from "@/lib/model";
+import type { LLMModel, LLMModelConfig } from "@/lib/model-config";
 import "core-js/features/object/group-by.js";
 import Image from "next/image";
 
@@ -26,7 +26,7 @@ export function LLMPicker({
       <div className="flex flex-col">
         <Select
           name="languageModel"
-          defaultValue={languageModel.model}
+          value={languageModel.model ?? ""}
           onValueChange={(e) => onLanguageModelChange({ model: e })}
         >
           <SelectTrigger className="whitespace-nowrap border-none shadow-none focus:ring-0 px-0 py-0 h-6 text-xs">

@@ -8,16 +8,14 @@ import {
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Settings2 } from "lucide-react";
-import { LLMModelConfig } from "@/lib/model";
+import type { LLMModelConfig } from "@/lib/model-config";
 
 export function LLMSettings({
   apiKeyConfigurable,
-  baseURLConfigurable,
   languageModel,
   onLanguageModelChange,
 }: {
   apiKeyConfigurable: boolean;
-  baseURLConfigurable: boolean;
   languageModel: LLMModelConfig;
   onLanguageModelChange: (model: LLMModelConfig) => void;
 }) {
@@ -27,6 +25,7 @@ export function LLMSettings({
         <Button
           variant="ghost"
           size="icon"
+          aria-label="Model settings"
           className="text-muted-foreground h-6 w-6 rounded-sm"
         >
           <Settings2 className="h-4 w-4" />
@@ -46,28 +45,6 @@ export function LLMSettings({
                 onChange={(e) =>
                   onLanguageModelChange({
                     apiKey:
-                      e.target.value.length > 0 ? e.target.value : undefined,
-                  })
-                }
-                className="text-sm"
-              />
-            </div>
-            <DropdownMenuSeparator />
-          </>
-        )}
-        {baseURLConfigurable && (
-          <>
-            <div className="flex flex-col gap-2 px-2 py-2">
-              <Label htmlFor="baseURL">Base URL</Label>
-              <Input
-                name="baseURL"
-                type="text"
-                placeholder="Auto"
-                required={true}
-                defaultValue={languageModel.baseURL}
-                onChange={(e) =>
-                  onLanguageModelChange({
-                    baseURL:
                       e.target.value.length > 0 ? e.target.value : undefined,
                   })
                 }
