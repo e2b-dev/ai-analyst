@@ -29,7 +29,7 @@ export default function Analyst({ models }: { models: LLMModel[] }) {
   ];
 
   const [isLoading, setIsLoading] = useState(false);
-  const defaultModelId = "claude-sonnet-4-5-20250929";
+  const defaultModelId = "claude-sonnet-4-6";
   const [languageModel, setLanguageModel] = useLocalStorage<LLMModelSettings>(
     "languageModel",
     {
