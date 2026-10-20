@@ -25,18 +25,6 @@
       "name": "o3"
     },
     {
-      "id": "o3-mini",
-      "provider": "OpenAI",
-      "providerId": "openai",
-      "name": "o3-mini"
-    },
-    {
-      "id": "o4-mini",
-      "provider": "OpenAI",
-      "providerId": "openai",
-      "name": "o4-mini"
-    },
-    {
       "id": "gpt-4.1",
       "provider": "OpenAI",
       "providerId": "openai",
@@ -47,12 +35,6 @@
       "provider": "OpenAI",
       "providerId": "openai",
       "name": "GPT-4.1 mini"
-    },
-    {
-      "id": "gpt-4.1-nano",
-      "provider": "OpenAI",
-      "providerId": "openai",
-      "name": "GPT-4.1 nano"
     },
     {
       "id": "gpt-4o",
@@ -67,12 +49,6 @@
       "name": "GPT-4o mini"
     },
     {
-      "id": "gpt-4-turbo",
-      "provider": "OpenAI",
-      "providerId": "openai",
-      "name": "GPT-4 Turbo"
-    },
-    {
       "id": "claude-opus-4-5-20251101",
       "provider": "Anthropic",
       "providerId": "anthropic",
@@ -85,10 +61,10 @@
       "name": "Claude Haiku 4.5"
     },
     {
-      "id": "claude-sonnet-4-5-20250929",
+      "id": "claude-sonnet-4-6",
       "provider": "Anthropic",
       "providerId": "anthropic",
-      "name": "Claude Sonnet 4.5"
+      "name": "Claude Sonnet 4.6"
     },
     {
       "id": "models/gemini-3.8-flash",
